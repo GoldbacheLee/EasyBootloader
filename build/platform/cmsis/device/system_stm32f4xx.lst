@@ -1,0 +1,1515 @@
+ARM GAS  /tmp/cclhuhzK.s 			page 1
+
+
+   1              		.cpu cortex-m4
+   2              		.arch armv7e-m
+   3              		.fpu fpv4-sp-d16
+   4              		.eabi_attribute 27, 1
+   5              		.eabi_attribute 28, 1
+   6              		.eabi_attribute 20, 1
+   7              		.eabi_attribute 21, 1
+   8              		.eabi_attribute 23, 3
+   9              		.eabi_attribute 24, 1
+  10              		.eabi_attribute 25, 1
+  11              		.eabi_attribute 26, 1
+  12              		.eabi_attribute 30, 1
+  13              		.eabi_attribute 34, 1
+  14              		.eabi_attribute 18, 4
+  15              		.file	"system_stm32f4xx.c"
+  16              		.text
+  17              	.Ltext0:
+  18              		.cfi_sections	.debug_frame
+  19              		.section	.text.SetSysClock,"ax",%progbits
+  20              		.align	1
+  21              		.syntax unified
+  22              		.thumb
+  23              		.thumb_func
+  25              	SetSysClock:
+  26              	.LFB125:
+  27              		.file 1 "platform/cmsis/device/system_stm32f4xx.c"
+   1:platform/cmsis/device/system_stm32f4xx.c **** /**
+   2:platform/cmsis/device/system_stm32f4xx.c ****   ******************************************************************************
+   3:platform/cmsis/device/system_stm32f4xx.c ****   * @file    system_stm32f4xx.c
+   4:platform/cmsis/device/system_stm32f4xx.c ****   * @author  MCD Application Team
+   5:platform/cmsis/device/system_stm32f4xx.c ****   * @version V1.8.1
+   6:platform/cmsis/device/system_stm32f4xx.c ****   * @date    27-January-2022
+   7:platform/cmsis/device/system_stm32f4xx.c ****   * @brief   CMSIS Cortex-M4 Device Peripheral Access Layer System Source File.
+   8:platform/cmsis/device/system_stm32f4xx.c ****   *          This file contains the system clock configuration for STM32F4xx devices.
+   9:platform/cmsis/device/system_stm32f4xx.c ****   *             
+  10:platform/cmsis/device/system_stm32f4xx.c ****   * 1.  This file provides two functions and one global variable to be called from 
+  11:platform/cmsis/device/system_stm32f4xx.c ****   *     user application:
+  12:platform/cmsis/device/system_stm32f4xx.c ****   *      - SystemInit(): Setups the system clock (System clock source, PLL Multiplier
+  13:platform/cmsis/device/system_stm32f4xx.c ****   *                      and Divider factors, AHB/APBx prescalers and Flash settings),
+  14:platform/cmsis/device/system_stm32f4xx.c ****   *                      depending on the configuration made in the clock xls tool. 
+  15:platform/cmsis/device/system_stm32f4xx.c ****   *                      This function is called at startup just after reset and 
+  16:platform/cmsis/device/system_stm32f4xx.c ****   *                      before branch to main program. This call is made inside
+  17:platform/cmsis/device/system_stm32f4xx.c ****   *                      the "startup_stm32f4xx.s" file.
+  18:platform/cmsis/device/system_stm32f4xx.c ****   *
+  19:platform/cmsis/device/system_stm32f4xx.c ****   *      - SystemCoreClock variable: Contains the core clock (HCLK), it can be used
+  20:platform/cmsis/device/system_stm32f4xx.c ****   *                                  by the user application to setup the SysTick 
+  21:platform/cmsis/device/system_stm32f4xx.c ****   *                                  timer or configure other parameters.
+  22:platform/cmsis/device/system_stm32f4xx.c ****   *                                     
+  23:platform/cmsis/device/system_stm32f4xx.c ****   *      - SystemCoreClockUpdate(): Updates the variable SystemCoreClock and must
+  24:platform/cmsis/device/system_stm32f4xx.c ****   *                                 be called whenever the core clock is changed
+  25:platform/cmsis/device/system_stm32f4xx.c ****   *                                 during program execution.
+  26:platform/cmsis/device/system_stm32f4xx.c ****   *
+  27:platform/cmsis/device/system_stm32f4xx.c ****   * 2. After each device reset the HSI (16 MHz) is used as system clock source.
+  28:platform/cmsis/device/system_stm32f4xx.c ****   *    Then SystemInit() function is called, in "startup_stm32f4xx.s" file, to
+  29:platform/cmsis/device/system_stm32f4xx.c ****   *    configure the system clock before to branch to main program.
+  30:platform/cmsis/device/system_stm32f4xx.c ****   *
+  31:platform/cmsis/device/system_stm32f4xx.c ****   * 3. If the system clock source selected by user fails to startup, the SystemInit()
+ARM GAS  /tmp/cclhuhzK.s 			page 2
+
+
+  32:platform/cmsis/device/system_stm32f4xx.c ****   *    function will do nothing and HSI still used as system clock source. User can 
+  33:platform/cmsis/device/system_stm32f4xx.c ****   *    add some code to deal with this issue inside the SetSysClock() function.
+  34:platform/cmsis/device/system_stm32f4xx.c ****   *
+  35:platform/cmsis/device/system_stm32f4xx.c ****   * 4. The default value of HSE crystal is set to 25MHz, refer to "HSE_VALUE" define
+  36:platform/cmsis/device/system_stm32f4xx.c ****   *    in "stm32f4xx.h" file. When HSE is used as system clock source, directly or
+  37:platform/cmsis/device/system_stm32f4xx.c ****   *    through PLL, and you are using different crystal you have to adapt the HSE
+  38:platform/cmsis/device/system_stm32f4xx.c ****   *    value to your own configuration.
+  39:platform/cmsis/device/system_stm32f4xx.c ****   *
+  40:platform/cmsis/device/system_stm32f4xx.c ****   * 5. This file configures the system clock as follows:
+  41:platform/cmsis/device/system_stm32f4xx.c ****   *=============================================================================
+  42:platform/cmsis/device/system_stm32f4xx.c ****   *=============================================================================
+  43:platform/cmsis/device/system_stm32f4xx.c ****   *                    Supported STM32F40xxx/41xxx devices
+  44:platform/cmsis/device/system_stm32f4xx.c ****   *-----------------------------------------------------------------------------
+  45:platform/cmsis/device/system_stm32f4xx.c ****   *        System Clock source                    | PLL (HSE)
+  46:platform/cmsis/device/system_stm32f4xx.c ****   *-----------------------------------------------------------------------------
+  47:platform/cmsis/device/system_stm32f4xx.c ****   *        SYSCLK(Hz)                             | 168000000
+  48:platform/cmsis/device/system_stm32f4xx.c ****   *-----------------------------------------------------------------------------
+  49:platform/cmsis/device/system_stm32f4xx.c ****   *        HCLK(Hz)                               | 168000000
+  50:platform/cmsis/device/system_stm32f4xx.c ****   *-----------------------------------------------------------------------------
+  51:platform/cmsis/device/system_stm32f4xx.c ****   *        AHB Prescaler                          | 1
+  52:platform/cmsis/device/system_stm32f4xx.c ****   *-----------------------------------------------------------------------------
+  53:platform/cmsis/device/system_stm32f4xx.c ****   *        APB1 Prescaler                         | 4
+  54:platform/cmsis/device/system_stm32f4xx.c ****   *-----------------------------------------------------------------------------
+  55:platform/cmsis/device/system_stm32f4xx.c ****   *        APB2 Prescaler                         | 2
+  56:platform/cmsis/device/system_stm32f4xx.c ****   *-----------------------------------------------------------------------------
+  57:platform/cmsis/device/system_stm32f4xx.c ****   *        HSE Frequency(Hz)                      | 25000000
+  58:platform/cmsis/device/system_stm32f4xx.c ****   *-----------------------------------------------------------------------------
+  59:platform/cmsis/device/system_stm32f4xx.c ****   *        PLL_M                                  | 25
+  60:platform/cmsis/device/system_stm32f4xx.c ****   *-----------------------------------------------------------------------------
+  61:platform/cmsis/device/system_stm32f4xx.c ****   *        PLL_N                                  | 336
+  62:platform/cmsis/device/system_stm32f4xx.c ****   *-----------------------------------------------------------------------------
+  63:platform/cmsis/device/system_stm32f4xx.c ****   *        PLL_P                                  | 2
+  64:platform/cmsis/device/system_stm32f4xx.c ****   *-----------------------------------------------------------------------------
+  65:platform/cmsis/device/system_stm32f4xx.c ****   *        PLL_Q                                  | 7
+  66:platform/cmsis/device/system_stm32f4xx.c ****   *-----------------------------------------------------------------------------
+  67:platform/cmsis/device/system_stm32f4xx.c ****   *        PLLI2S_N                               | NA
+  68:platform/cmsis/device/system_stm32f4xx.c ****   *-----------------------------------------------------------------------------
+  69:platform/cmsis/device/system_stm32f4xx.c ****   *        PLLI2S_R                               | NA
+  70:platform/cmsis/device/system_stm32f4xx.c ****   *-----------------------------------------------------------------------------
+  71:platform/cmsis/device/system_stm32f4xx.c ****   *        I2S input clock                        | NA
+  72:platform/cmsis/device/system_stm32f4xx.c ****   *-----------------------------------------------------------------------------
+  73:platform/cmsis/device/system_stm32f4xx.c ****   *        VDD(V)                                 | 3.3
+  74:platform/cmsis/device/system_stm32f4xx.c ****   *-----------------------------------------------------------------------------
+  75:platform/cmsis/device/system_stm32f4xx.c ****   *        Main regulator output voltage          | Scale1 mode
+  76:platform/cmsis/device/system_stm32f4xx.c ****   *-----------------------------------------------------------------------------
+  77:platform/cmsis/device/system_stm32f4xx.c ****   *        Flash Latency(WS)                      | 5
+  78:platform/cmsis/device/system_stm32f4xx.c ****   *-----------------------------------------------------------------------------
+  79:platform/cmsis/device/system_stm32f4xx.c ****   *        Prefetch Buffer                        | ON
+  80:platform/cmsis/device/system_stm32f4xx.c ****   *-----------------------------------------------------------------------------
+  81:platform/cmsis/device/system_stm32f4xx.c ****   *        Instruction cache                      | ON
+  82:platform/cmsis/device/system_stm32f4xx.c ****   *-----------------------------------------------------------------------------
+  83:platform/cmsis/device/system_stm32f4xx.c ****   *        Data cache                             | ON
+  84:platform/cmsis/device/system_stm32f4xx.c ****   *-----------------------------------------------------------------------------
+  85:platform/cmsis/device/system_stm32f4xx.c ****   *        Require 48MHz for USB OTG FS,          | Disabled
+  86:platform/cmsis/device/system_stm32f4xx.c ****   *        SDIO and RNG clock                     |
+  87:platform/cmsis/device/system_stm32f4xx.c ****   *-----------------------------------------------------------------------------
+  88:platform/cmsis/device/system_stm32f4xx.c ****   *=============================================================================
+ARM GAS  /tmp/cclhuhzK.s 			page 3
+
+
+  89:platform/cmsis/device/system_stm32f4xx.c ****   *=============================================================================
+  90:platform/cmsis/device/system_stm32f4xx.c ****   *                    Supported STM32F42xxx/43xxx devices
+  91:platform/cmsis/device/system_stm32f4xx.c ****   *-----------------------------------------------------------------------------
+  92:platform/cmsis/device/system_stm32f4xx.c ****   *        System Clock source                    | PLL (HSE)
+  93:platform/cmsis/device/system_stm32f4xx.c ****   *-----------------------------------------------------------------------------
+  94:platform/cmsis/device/system_stm32f4xx.c ****   *        SYSCLK(Hz)                             | 180000000
+  95:platform/cmsis/device/system_stm32f4xx.c ****   *-----------------------------------------------------------------------------
+  96:platform/cmsis/device/system_stm32f4xx.c ****   *        HCLK(Hz)                               | 180000000
+  97:platform/cmsis/device/system_stm32f4xx.c ****   *-----------------------------------------------------------------------------
+  98:platform/cmsis/device/system_stm32f4xx.c ****   *        AHB Prescaler                          | 1
+  99:platform/cmsis/device/system_stm32f4xx.c ****   *-----------------------------------------------------------------------------
+ 100:platform/cmsis/device/system_stm32f4xx.c ****   *        APB1 Prescaler                         | 4
+ 101:platform/cmsis/device/system_stm32f4xx.c ****   *-----------------------------------------------------------------------------
+ 102:platform/cmsis/device/system_stm32f4xx.c ****   *        APB2 Prescaler                         | 2
+ 103:platform/cmsis/device/system_stm32f4xx.c ****   *-----------------------------------------------------------------------------
+ 104:platform/cmsis/device/system_stm32f4xx.c ****   *        HSE Frequency(Hz)                      | 25000000
+ 105:platform/cmsis/device/system_stm32f4xx.c ****   *-----------------------------------------------------------------------------
+ 106:platform/cmsis/device/system_stm32f4xx.c ****   *        PLL_M                                  | 25
+ 107:platform/cmsis/device/system_stm32f4xx.c ****   *-----------------------------------------------------------------------------
+ 108:platform/cmsis/device/system_stm32f4xx.c ****   *        PLL_N                                  | 360
+ 109:platform/cmsis/device/system_stm32f4xx.c ****   *-----------------------------------------------------------------------------
+ 110:platform/cmsis/device/system_stm32f4xx.c ****   *        PLL_P                                  | 2
+ 111:platform/cmsis/device/system_stm32f4xx.c ****   *-----------------------------------------------------------------------------
+ 112:platform/cmsis/device/system_stm32f4xx.c ****   *        PLL_Q                                  | 7
+ 113:platform/cmsis/device/system_stm32f4xx.c ****   *-----------------------------------------------------------------------------
+ 114:platform/cmsis/device/system_stm32f4xx.c ****   *        PLLI2S_N                               | NA
+ 115:platform/cmsis/device/system_stm32f4xx.c ****   *-----------------------------------------------------------------------------
+ 116:platform/cmsis/device/system_stm32f4xx.c ****   *        PLLI2S_R                               | NA
+ 117:platform/cmsis/device/system_stm32f4xx.c ****   *-----------------------------------------------------------------------------
+ 118:platform/cmsis/device/system_stm32f4xx.c ****   *        I2S input clock                        | NA
+ 119:platform/cmsis/device/system_stm32f4xx.c ****   *-----------------------------------------------------------------------------
+ 120:platform/cmsis/device/system_stm32f4xx.c ****   *        VDD(V)                                 | 3.3
+ 121:platform/cmsis/device/system_stm32f4xx.c ****   *-----------------------------------------------------------------------------
+ 122:platform/cmsis/device/system_stm32f4xx.c ****   *        Main regulator output voltage          | Scale1 mode
+ 123:platform/cmsis/device/system_stm32f4xx.c ****   *-----------------------------------------------------------------------------
+ 124:platform/cmsis/device/system_stm32f4xx.c ****   *        Flash Latency(WS)                      | 5
+ 125:platform/cmsis/device/system_stm32f4xx.c ****   *-----------------------------------------------------------------------------
+ 126:platform/cmsis/device/system_stm32f4xx.c ****   *        Prefetch Buffer                        | ON
+ 127:platform/cmsis/device/system_stm32f4xx.c ****   *-----------------------------------------------------------------------------
+ 128:platform/cmsis/device/system_stm32f4xx.c ****   *        Instruction cache                      | ON
+ 129:platform/cmsis/device/system_stm32f4xx.c ****   *-----------------------------------------------------------------------------
+ 130:platform/cmsis/device/system_stm32f4xx.c ****   *        Data cache                             | ON
+ 131:platform/cmsis/device/system_stm32f4xx.c ****   *-----------------------------------------------------------------------------
+ 132:platform/cmsis/device/system_stm32f4xx.c ****   *        Require 48MHz for USB OTG FS,          | Disabled
+ 133:platform/cmsis/device/system_stm32f4xx.c ****   *        SDIO and RNG clock                     |
+ 134:platform/cmsis/device/system_stm32f4xx.c ****   *-----------------------------------------------------------------------------
+ 135:platform/cmsis/device/system_stm32f4xx.c ****   *=============================================================================
+ 136:platform/cmsis/device/system_stm32f4xx.c ****   *=============================================================================
+ 137:platform/cmsis/device/system_stm32f4xx.c ****   *                         Supported STM32F401xx devices
+ 138:platform/cmsis/device/system_stm32f4xx.c ****   *-----------------------------------------------------------------------------
+ 139:platform/cmsis/device/system_stm32f4xx.c ****   *        System Clock source                    | PLL (HSE)
+ 140:platform/cmsis/device/system_stm32f4xx.c ****   *-----------------------------------------------------------------------------
+ 141:platform/cmsis/device/system_stm32f4xx.c ****   *        SYSCLK(Hz)                             | 84000000
+ 142:platform/cmsis/device/system_stm32f4xx.c ****   *-----------------------------------------------------------------------------
+ 143:platform/cmsis/device/system_stm32f4xx.c ****   *        HCLK(Hz)                               | 84000000
+ 144:platform/cmsis/device/system_stm32f4xx.c ****   *-----------------------------------------------------------------------------
+ 145:platform/cmsis/device/system_stm32f4xx.c ****   *        AHB Prescaler                          | 1
+ARM GAS  /tmp/cclhuhzK.s 			page 4
+
+
+ 146:platform/cmsis/device/system_stm32f4xx.c ****   *-----------------------------------------------------------------------------
+ 147:platform/cmsis/device/system_stm32f4xx.c ****   *        APB1 Prescaler                         | 2
+ 148:platform/cmsis/device/system_stm32f4xx.c ****   *-----------------------------------------------------------------------------
+ 149:platform/cmsis/device/system_stm32f4xx.c ****   *        APB2 Prescaler                         | 1
+ 150:platform/cmsis/device/system_stm32f4xx.c ****   *-----------------------------------------------------------------------------
+ 151:platform/cmsis/device/system_stm32f4xx.c ****   *        HSE Frequency(Hz)                      | 25000000
+ 152:platform/cmsis/device/system_stm32f4xx.c ****   *-----------------------------------------------------------------------------
+ 153:platform/cmsis/device/system_stm32f4xx.c ****   *        PLL_M                                  | 25
+ 154:platform/cmsis/device/system_stm32f4xx.c ****   *-----------------------------------------------------------------------------
+ 155:platform/cmsis/device/system_stm32f4xx.c ****   *        PLL_N                                  | 336
+ 156:platform/cmsis/device/system_stm32f4xx.c ****   *-----------------------------------------------------------------------------
+ 157:platform/cmsis/device/system_stm32f4xx.c ****   *        PLL_P                                  | 4
+ 158:platform/cmsis/device/system_stm32f4xx.c ****   *-----------------------------------------------------------------------------
+ 159:platform/cmsis/device/system_stm32f4xx.c ****   *        PLL_Q                                  | 7
+ 160:platform/cmsis/device/system_stm32f4xx.c ****   *-----------------------------------------------------------------------------
+ 161:platform/cmsis/device/system_stm32f4xx.c ****   *        PLLI2S_N                               | NA
+ 162:platform/cmsis/device/system_stm32f4xx.c ****   *-----------------------------------------------------------------------------
+ 163:platform/cmsis/device/system_stm32f4xx.c ****   *        PLLI2S_R                               | NA
+ 164:platform/cmsis/device/system_stm32f4xx.c ****   *-----------------------------------------------------------------------------
+ 165:platform/cmsis/device/system_stm32f4xx.c ****   *        I2S input clock                        | NA
+ 166:platform/cmsis/device/system_stm32f4xx.c ****   *-----------------------------------------------------------------------------
+ 167:platform/cmsis/device/system_stm32f4xx.c ****   *        VDD(V)                                 | 3.3
+ 168:platform/cmsis/device/system_stm32f4xx.c ****   *-----------------------------------------------------------------------------
+ 169:platform/cmsis/device/system_stm32f4xx.c ****   *        Main regulator output voltage          | Scale1 mode
+ 170:platform/cmsis/device/system_stm32f4xx.c ****   *-----------------------------------------------------------------------------
+ 171:platform/cmsis/device/system_stm32f4xx.c ****   *        Flash Latency(WS)                      | 2
+ 172:platform/cmsis/device/system_stm32f4xx.c ****   *-----------------------------------------------------------------------------
+ 173:platform/cmsis/device/system_stm32f4xx.c ****   *        Prefetch Buffer                        | ON
+ 174:platform/cmsis/device/system_stm32f4xx.c ****   *-----------------------------------------------------------------------------
+ 175:platform/cmsis/device/system_stm32f4xx.c ****   *        Instruction cache                      | ON
+ 176:platform/cmsis/device/system_stm32f4xx.c ****   *-----------------------------------------------------------------------------
+ 177:platform/cmsis/device/system_stm32f4xx.c ****   *        Data cache                             | ON
+ 178:platform/cmsis/device/system_stm32f4xx.c ****   *-----------------------------------------------------------------------------
+ 179:platform/cmsis/device/system_stm32f4xx.c ****   *        Require 48MHz for USB OTG FS,          | Disabled
+ 180:platform/cmsis/device/system_stm32f4xx.c ****   *        SDIO and RNG clock                     |
+ 181:platform/cmsis/device/system_stm32f4xx.c ****   *-----------------------------------------------------------------------------
+ 182:platform/cmsis/device/system_stm32f4xx.c ****   *=============================================================================
+ 183:platform/cmsis/device/system_stm32f4xx.c ****   *=============================================================================
+ 184:platform/cmsis/device/system_stm32f4xx.c ****   *                Supported STM32F411xx/STM32F410xx devices
+ 185:platform/cmsis/device/system_stm32f4xx.c ****   *-----------------------------------------------------------------------------
+ 186:platform/cmsis/device/system_stm32f4xx.c ****   *        System Clock source                    | PLL (HSI)
+ 187:platform/cmsis/device/system_stm32f4xx.c ****   *-----------------------------------------------------------------------------
+ 188:platform/cmsis/device/system_stm32f4xx.c ****   *        SYSCLK(Hz)                             | 100000000
+ 189:platform/cmsis/device/system_stm32f4xx.c ****   *-----------------------------------------------------------------------------
+ 190:platform/cmsis/device/system_stm32f4xx.c ****   *        HCLK(Hz)                               | 100000000
+ 191:platform/cmsis/device/system_stm32f4xx.c ****   *-----------------------------------------------------------------------------
+ 192:platform/cmsis/device/system_stm32f4xx.c ****   *        AHB Prescaler                          | 1
+ 193:platform/cmsis/device/system_stm32f4xx.c ****   *-----------------------------------------------------------------------------
+ 194:platform/cmsis/device/system_stm32f4xx.c ****   *        APB1 Prescaler                         | 2
+ 195:platform/cmsis/device/system_stm32f4xx.c ****   *-----------------------------------------------------------------------------
+ 196:platform/cmsis/device/system_stm32f4xx.c ****   *        APB2 Prescaler                         | 1
+ 197:platform/cmsis/device/system_stm32f4xx.c ****   *-----------------------------------------------------------------------------
+ 198:platform/cmsis/device/system_stm32f4xx.c ****   *        HSI Frequency(Hz)                      | 16000000
+ 199:platform/cmsis/device/system_stm32f4xx.c ****   *-----------------------------------------------------------------------------
+ 200:platform/cmsis/device/system_stm32f4xx.c ****   *        PLL_M                                  | 16
+ 201:platform/cmsis/device/system_stm32f4xx.c ****   *-----------------------------------------------------------------------------
+ 202:platform/cmsis/device/system_stm32f4xx.c ****   *        PLL_N                                  | 400
+ARM GAS  /tmp/cclhuhzK.s 			page 5
+
+
+ 203:platform/cmsis/device/system_stm32f4xx.c ****   *-----------------------------------------------------------------------------
+ 204:platform/cmsis/device/system_stm32f4xx.c ****   *        PLL_P                                  | 4
+ 205:platform/cmsis/device/system_stm32f4xx.c ****   *-----------------------------------------------------------------------------
+ 206:platform/cmsis/device/system_stm32f4xx.c ****   *        PLL_Q                                  | 7
+ 207:platform/cmsis/device/system_stm32f4xx.c ****   *-----------------------------------------------------------------------------
+ 208:platform/cmsis/device/system_stm32f4xx.c ****   *        PLLI2S_N                               | NA
+ 209:platform/cmsis/device/system_stm32f4xx.c ****   *-----------------------------------------------------------------------------
+ 210:platform/cmsis/device/system_stm32f4xx.c ****   *        PLLI2S_R                               | NA
+ 211:platform/cmsis/device/system_stm32f4xx.c ****   *-----------------------------------------------------------------------------
+ 212:platform/cmsis/device/system_stm32f4xx.c ****   *        I2S input clock                        | NA
+ 213:platform/cmsis/device/system_stm32f4xx.c ****   *-----------------------------------------------------------------------------
+ 214:platform/cmsis/device/system_stm32f4xx.c ****   *        VDD(V)                                 | 3.3
+ 215:platform/cmsis/device/system_stm32f4xx.c ****   *-----------------------------------------------------------------------------
+ 216:platform/cmsis/device/system_stm32f4xx.c ****   *        Main regulator output voltage          | Scale1 mode
+ 217:platform/cmsis/device/system_stm32f4xx.c ****   *-----------------------------------------------------------------------------
+ 218:platform/cmsis/device/system_stm32f4xx.c ****   *        Flash Latency(WS)                      | 3
+ 219:platform/cmsis/device/system_stm32f4xx.c ****   *-----------------------------------------------------------------------------
+ 220:platform/cmsis/device/system_stm32f4xx.c ****   *        Prefetch Buffer                        | ON
+ 221:platform/cmsis/device/system_stm32f4xx.c ****   *-----------------------------------------------------------------------------
+ 222:platform/cmsis/device/system_stm32f4xx.c ****   *        Instruction cache                      | ON
+ 223:platform/cmsis/device/system_stm32f4xx.c ****   *-----------------------------------------------------------------------------
+ 224:platform/cmsis/device/system_stm32f4xx.c ****   *        Data cache                             | ON
+ 225:platform/cmsis/device/system_stm32f4xx.c ****   *-----------------------------------------------------------------------------
+ 226:platform/cmsis/device/system_stm32f4xx.c ****   *        Require 48MHz for USB OTG FS,          | Disabled
+ 227:platform/cmsis/device/system_stm32f4xx.c ****   *        SDIO and RNG clock                     |
+ 228:platform/cmsis/device/system_stm32f4xx.c ****   *-----------------------------------------------------------------------------
+ 229:platform/cmsis/device/system_stm32f4xx.c ****   *=============================================================================
+ 230:platform/cmsis/device/system_stm32f4xx.c ****   *=============================================================================
+ 231:platform/cmsis/device/system_stm32f4xx.c ****   *                         Supported STM32F446xx devices
+ 232:platform/cmsis/device/system_stm32f4xx.c ****   *-----------------------------------------------------------------------------
+ 233:platform/cmsis/device/system_stm32f4xx.c ****   *        System Clock source                    | PLL (HSE)
+ 234:platform/cmsis/device/system_stm32f4xx.c ****   *-----------------------------------------------------------------------------
+ 235:platform/cmsis/device/system_stm32f4xx.c ****   *        SYSCLK(Hz)                             | 180000000
+ 236:platform/cmsis/device/system_stm32f4xx.c ****   *-----------------------------------------------------------------------------
+ 237:platform/cmsis/device/system_stm32f4xx.c ****   *        HCLK(Hz)                               | 180000000
+ 238:platform/cmsis/device/system_stm32f4xx.c ****   *-----------------------------------------------------------------------------
+ 239:platform/cmsis/device/system_stm32f4xx.c ****   *        AHB Prescaler                          | 1
+ 240:platform/cmsis/device/system_stm32f4xx.c ****   *-----------------------------------------------------------------------------
+ 241:platform/cmsis/device/system_stm32f4xx.c ****   *        APB1 Prescaler                         | 4
+ 242:platform/cmsis/device/system_stm32f4xx.c ****   *-----------------------------------------------------------------------------
+ 243:platform/cmsis/device/system_stm32f4xx.c ****   *        APB2 Prescaler                         | 2
+ 244:platform/cmsis/device/system_stm32f4xx.c ****   *-----------------------------------------------------------------------------
+ 245:platform/cmsis/device/system_stm32f4xx.c ****   *        HSE Frequency(Hz)                      | 8000000
+ 246:platform/cmsis/device/system_stm32f4xx.c ****   *-----------------------------------------------------------------------------
+ 247:platform/cmsis/device/system_stm32f4xx.c ****   *        PLL_M                                  | 8
+ 248:platform/cmsis/device/system_stm32f4xx.c ****   *-----------------------------------------------------------------------------
+ 249:platform/cmsis/device/system_stm32f4xx.c ****   *        PLL_N                                  | 360
+ 250:platform/cmsis/device/system_stm32f4xx.c ****   *-----------------------------------------------------------------------------
+ 251:platform/cmsis/device/system_stm32f4xx.c ****   *        PLL_P                                  | 2
+ 252:platform/cmsis/device/system_stm32f4xx.c ****   *-----------------------------------------------------------------------------
+ 253:platform/cmsis/device/system_stm32f4xx.c ****   *        PLL_Q                                  | 7
+ 254:platform/cmsis/device/system_stm32f4xx.c ****   *-----------------------------------------------------------------------------
+ 255:platform/cmsis/device/system_stm32f4xx.c ****   *        PLL_R                                  | NA
+ 256:platform/cmsis/device/system_stm32f4xx.c ****   *-----------------------------------------------------------------------------
+ 257:platform/cmsis/device/system_stm32f4xx.c ****   *        PLLI2S_M                               | NA
+ 258:platform/cmsis/device/system_stm32f4xx.c ****   *-----------------------------------------------------------------------------
+ 259:platform/cmsis/device/system_stm32f4xx.c ****   *        PLLI2S_N                               | NA
+ARM GAS  /tmp/cclhuhzK.s 			page 6
+
+
+ 260:platform/cmsis/device/system_stm32f4xx.c ****   *-----------------------------------------------------------------------------
+ 261:platform/cmsis/device/system_stm32f4xx.c ****   *        PLLI2S_P                               | NA
+ 262:platform/cmsis/device/system_stm32f4xx.c ****   *-----------------------------------------------------------------------------
+ 263:platform/cmsis/device/system_stm32f4xx.c ****   *        PLLI2S_Q                               | NA
+ 264:platform/cmsis/device/system_stm32f4xx.c ****   *-----------------------------------------------------------------------------
+ 265:platform/cmsis/device/system_stm32f4xx.c ****   *        PLLI2S_R                               | NA
+ 266:platform/cmsis/device/system_stm32f4xx.c ****   *-----------------------------------------------------------------------------
+ 267:platform/cmsis/device/system_stm32f4xx.c ****   *        I2S input clock                        | NA
+ 268:platform/cmsis/device/system_stm32f4xx.c ****   *-----------------------------------------------------------------------------
+ 269:platform/cmsis/device/system_stm32f4xx.c ****   *        VDD(V)                                 | 3.3
+ 270:platform/cmsis/device/system_stm32f4xx.c ****   *-----------------------------------------------------------------------------
+ 271:platform/cmsis/device/system_stm32f4xx.c ****   *        Main regulator output voltage          | Scale1 mode
+ 272:platform/cmsis/device/system_stm32f4xx.c ****   *-----------------------------------------------------------------------------
+ 273:platform/cmsis/device/system_stm32f4xx.c ****   *        Flash Latency(WS)                      | 5
+ 274:platform/cmsis/device/system_stm32f4xx.c ****   *-----------------------------------------------------------------------------
+ 275:platform/cmsis/device/system_stm32f4xx.c ****   *        Prefetch Buffer                        | ON
+ 276:platform/cmsis/device/system_stm32f4xx.c ****   *-----------------------------------------------------------------------------
+ 277:platform/cmsis/device/system_stm32f4xx.c ****   *        Instruction cache                      | ON
+ 278:platform/cmsis/device/system_stm32f4xx.c ****   *-----------------------------------------------------------------------------
+ 279:platform/cmsis/device/system_stm32f4xx.c ****   *        Data cache                             | ON
+ 280:platform/cmsis/device/system_stm32f4xx.c ****   *-----------------------------------------------------------------------------
+ 281:platform/cmsis/device/system_stm32f4xx.c ****   *        Require 48MHz for USB OTG FS,          | Disabled
+ 282:platform/cmsis/device/system_stm32f4xx.c ****   *        SDIO and RNG clock                     |
+ 283:platform/cmsis/device/system_stm32f4xx.c ****   *-----------------------------------------------------------------------------
+ 284:platform/cmsis/device/system_stm32f4xx.c ****   *=============================================================================
+ 285:platform/cmsis/device/system_stm32f4xx.c ****   ******************************************************************************
+ 286:platform/cmsis/device/system_stm32f4xx.c ****   * @attention
+ 287:platform/cmsis/device/system_stm32f4xx.c ****   *
+ 288:platform/cmsis/device/system_stm32f4xx.c ****   * Copyright (c) 2016 STMicroelectronics.
+ 289:platform/cmsis/device/system_stm32f4xx.c ****   * All rights reserved.
+ 290:platform/cmsis/device/system_stm32f4xx.c ****   *
+ 291:platform/cmsis/device/system_stm32f4xx.c ****   * This software is licensed under terms that can be found in the LICENSE file
+ 292:platform/cmsis/device/system_stm32f4xx.c ****   * in the root directory of this software component.
+ 293:platform/cmsis/device/system_stm32f4xx.c ****   * If no LICENSE file comes with this software, it is provided AS-IS.
+ 294:platform/cmsis/device/system_stm32f4xx.c ****   *
+ 295:platform/cmsis/device/system_stm32f4xx.c ****   ******************************************************************************
+ 296:platform/cmsis/device/system_stm32f4xx.c ****   */
+ 297:platform/cmsis/device/system_stm32f4xx.c **** 
+ 298:platform/cmsis/device/system_stm32f4xx.c **** /** @addtogroup CMSIS
+ 299:platform/cmsis/device/system_stm32f4xx.c ****   * @{
+ 300:platform/cmsis/device/system_stm32f4xx.c ****   */
+ 301:platform/cmsis/device/system_stm32f4xx.c **** 
+ 302:platform/cmsis/device/system_stm32f4xx.c **** /** @addtogroup stm32f4xx_system
+ 303:platform/cmsis/device/system_stm32f4xx.c ****   * @{
+ 304:platform/cmsis/device/system_stm32f4xx.c ****   */  
+ 305:platform/cmsis/device/system_stm32f4xx.c ****   
+ 306:platform/cmsis/device/system_stm32f4xx.c **** /** @addtogroup STM32F4xx_System_Private_Includes
+ 307:platform/cmsis/device/system_stm32f4xx.c ****   * @{
+ 308:platform/cmsis/device/system_stm32f4xx.c ****   */
+ 309:platform/cmsis/device/system_stm32f4xx.c **** 
+ 310:platform/cmsis/device/system_stm32f4xx.c **** #include "stm32f4xx.h"
+ 311:platform/cmsis/device/system_stm32f4xx.c **** 
+ 312:platform/cmsis/device/system_stm32f4xx.c **** /**
+ 313:platform/cmsis/device/system_stm32f4xx.c ****   * @}
+ 314:platform/cmsis/device/system_stm32f4xx.c ****   */
+ 315:platform/cmsis/device/system_stm32f4xx.c **** 
+ 316:platform/cmsis/device/system_stm32f4xx.c **** /** @addtogroup STM32F4xx_System_Private_TypesDefinitions
+ARM GAS  /tmp/cclhuhzK.s 			page 7
+
+
+ 317:platform/cmsis/device/system_stm32f4xx.c ****   * @{
+ 318:platform/cmsis/device/system_stm32f4xx.c ****   */
+ 319:platform/cmsis/device/system_stm32f4xx.c **** 
+ 320:platform/cmsis/device/system_stm32f4xx.c **** /**
+ 321:platform/cmsis/device/system_stm32f4xx.c ****   * @}
+ 322:platform/cmsis/device/system_stm32f4xx.c ****   */
+ 323:platform/cmsis/device/system_stm32f4xx.c **** 
+ 324:platform/cmsis/device/system_stm32f4xx.c **** /** @addtogroup STM32F4xx_System_Private_Defines
+ 325:platform/cmsis/device/system_stm32f4xx.c ****   * @{
+ 326:platform/cmsis/device/system_stm32f4xx.c ****   */
+ 327:platform/cmsis/device/system_stm32f4xx.c **** 
+ 328:platform/cmsis/device/system_stm32f4xx.c **** /************************* Miscellaneous Configuration ************************/
+ 329:platform/cmsis/device/system_stm32f4xx.c **** /*!< Uncomment the following line if you need to use external SRAM or SDRAM mounted
+ 330:platform/cmsis/device/system_stm32f4xx.c ****      on STM324xG_EVAL/STM324x7I_EVAL/STM324x9I_EVAL boards as data memory  */     
+ 331:platform/cmsis/device/system_stm32f4xx.c **** #if defined(STM32F40_41xxx) || defined(STM32F427_437xx) || defined(STM32F429_439xx) || defined(STM3
+ 332:platform/cmsis/device/system_stm32f4xx.c **** /* #define DATA_IN_ExtSRAM */
+ 333:platform/cmsis/device/system_stm32f4xx.c **** #endif /* STM32F40_41xxx || STM32F427_437x || STM32F429_439xx || STM32F469_479xx || STM32F413_423xx
+ 334:platform/cmsis/device/system_stm32f4xx.c **** 
+ 335:platform/cmsis/device/system_stm32f4xx.c **** #if defined(STM32F427_437xx) || defined(STM32F429_439xx) || defined(STM32F446xx) || defined(STM32F4
+ 336:platform/cmsis/device/system_stm32f4xx.c **** /* #define DATA_IN_ExtSDRAM */
+ 337:platform/cmsis/device/system_stm32f4xx.c **** #endif /* STM32F427_437x || STM32F429_439xx || STM32F446xx || STM32F469_479xx */ 
+ 338:platform/cmsis/device/system_stm32f4xx.c **** 
+ 339:platform/cmsis/device/system_stm32f4xx.c **** #if defined(STM32F410xx) || defined(STM32F411xE)
+ 340:platform/cmsis/device/system_stm32f4xx.c **** /*!< Uncomment the following line if you need to clock the STM32F410xx/STM32F411xE by HSE Bypass
+ 341:platform/cmsis/device/system_stm32f4xx.c ****      through STLINK MCO pin of STM32F103 microcontroller. The frequency cannot be changed
+ 342:platform/cmsis/device/system_stm32f4xx.c ****      and is fixed at 8 MHz. 
+ 343:platform/cmsis/device/system_stm32f4xx.c ****      Hardware configuration needed for Nucleo Board:
+ 344:platform/cmsis/device/system_stm32f4xx.c ****      – SB54, SB55 OFF
+ 345:platform/cmsis/device/system_stm32f4xx.c ****      – R35 removed
+ 346:platform/cmsis/device/system_stm32f4xx.c ****      – SB16, SB50 ON */
+ 347:platform/cmsis/device/system_stm32f4xx.c **** /* #define USE_HSE_BYPASS */
+ 348:platform/cmsis/device/system_stm32f4xx.c **** 
+ 349:platform/cmsis/device/system_stm32f4xx.c **** #if defined(USE_HSE_BYPASS)     
+ 350:platform/cmsis/device/system_stm32f4xx.c **** #define HSE_BYPASS_INPUT_FREQUENCY   8000000
+ 351:platform/cmsis/device/system_stm32f4xx.c **** #endif /* USE_HSE_BYPASS */    
+ 352:platform/cmsis/device/system_stm32f4xx.c **** #endif /* STM32F410xx || STM32F411xE */
+ 353:platform/cmsis/device/system_stm32f4xx.c ****     
+ 354:platform/cmsis/device/system_stm32f4xx.c **** /*!< Uncomment the following line if you need to relocate your vector Table in
+ 355:platform/cmsis/device/system_stm32f4xx.c ****      Internal SRAM. */
+ 356:platform/cmsis/device/system_stm32f4xx.c **** /* #define VECT_TAB_SRAM */
+ 357:platform/cmsis/device/system_stm32f4xx.c **** #define VECT_TAB_OFFSET  0x00 /*!< Vector Table base offset field. 
+ 358:platform/cmsis/device/system_stm32f4xx.c ****                                    This value must be a multiple of 0x200. */
+ 359:platform/cmsis/device/system_stm32f4xx.c **** /******************************************************************************/
+ 360:platform/cmsis/device/system_stm32f4xx.c **** 
+ 361:platform/cmsis/device/system_stm32f4xx.c **** /************************* PLL Parameters *************************************/
+ 362:platform/cmsis/device/system_stm32f4xx.c **** #if defined(STM32F40_41xxx) || defined(STM32F427_437xx) || defined(STM32F429_439xx) || defined(STM3
+ 363:platform/cmsis/device/system_stm32f4xx.c ****  /* PLL_VCO = (HSE_VALUE or HSI_VALUE / PLL_M) * PLL_N */
+ 364:platform/cmsis/device/system_stm32f4xx.c ****  #define PLL_M      25
+ 365:platform/cmsis/device/system_stm32f4xx.c **** #elif defined(STM32F412xG) || defined(STM32F413_423xx) || defined (STM32F446xx)
+ 366:platform/cmsis/device/system_stm32f4xx.c ****  #define PLL_M      8
+ 367:platform/cmsis/device/system_stm32f4xx.c **** #elif defined (STM32F410xx) || defined (STM32F411xE)
+ 368:platform/cmsis/device/system_stm32f4xx.c ****  #if defined(USE_HSE_BYPASS)
+ 369:platform/cmsis/device/system_stm32f4xx.c ****   #define PLL_M      8    
+ 370:platform/cmsis/device/system_stm32f4xx.c ****  #else /* !USE_HSE_BYPASS */
+ 371:platform/cmsis/device/system_stm32f4xx.c ****   #define PLL_M      16
+ 372:platform/cmsis/device/system_stm32f4xx.c ****  #endif /* USE_HSE_BYPASS */
+ 373:platform/cmsis/device/system_stm32f4xx.c **** #else
+ARM GAS  /tmp/cclhuhzK.s 			page 8
+
+
+ 374:platform/cmsis/device/system_stm32f4xx.c **** #endif /* STM32F40_41xxx || STM32F427_437xx || STM32F429_439xx || STM32F401xx || STM32F469_479xx */
+ 375:platform/cmsis/device/system_stm32f4xx.c **** 
+ 376:platform/cmsis/device/system_stm32f4xx.c **** /* USB OTG FS, SDIO and RNG Clock =  PLL_VCO / PLLQ */
+ 377:platform/cmsis/device/system_stm32f4xx.c **** #define PLL_Q      7
+ 378:platform/cmsis/device/system_stm32f4xx.c **** 
+ 379:platform/cmsis/device/system_stm32f4xx.c **** #if defined(STM32F446xx)
+ 380:platform/cmsis/device/system_stm32f4xx.c **** /* PLL division factor for I2S, SAI, SYSTEM and SPDIF: Clock =  PLL_VCO / PLLR */
+ 381:platform/cmsis/device/system_stm32f4xx.c **** #define PLL_R      7
+ 382:platform/cmsis/device/system_stm32f4xx.c **** #elif defined(STM32F412xG) || defined(STM32F413_423xx)
+ 383:platform/cmsis/device/system_stm32f4xx.c **** #define PLL_R      2
+ 384:platform/cmsis/device/system_stm32f4xx.c **** #else
+ 385:platform/cmsis/device/system_stm32f4xx.c **** #endif /* STM32F446xx */ 
+ 386:platform/cmsis/device/system_stm32f4xx.c **** 
+ 387:platform/cmsis/device/system_stm32f4xx.c **** #if defined(STM32F427_437xx) || defined(STM32F429_439xx) || defined(STM32F446xx) || defined(STM32F4
+ 388:platform/cmsis/device/system_stm32f4xx.c **** #define PLL_N      360
+ 389:platform/cmsis/device/system_stm32f4xx.c **** /* SYSCLK = PLL_VCO / PLL_P */
+ 390:platform/cmsis/device/system_stm32f4xx.c **** #define PLL_P      2
+ 391:platform/cmsis/device/system_stm32f4xx.c **** #endif /* STM32F427_437x || STM32F429_439xx || STM32F446xx || STM32F469_479xx */
+ 392:platform/cmsis/device/system_stm32f4xx.c **** 
+ 393:platform/cmsis/device/system_stm32f4xx.c **** #if defined (STM32F40_41xxx)
+ 394:platform/cmsis/device/system_stm32f4xx.c **** #define PLL_N      336
+ 395:platform/cmsis/device/system_stm32f4xx.c **** /* SYSCLK = PLL_VCO / PLL_P */
+ 396:platform/cmsis/device/system_stm32f4xx.c **** #define PLL_P      2
+ 397:platform/cmsis/device/system_stm32f4xx.c **** #endif /* STM32F40_41xxx */
+ 398:platform/cmsis/device/system_stm32f4xx.c **** 
+ 399:platform/cmsis/device/system_stm32f4xx.c **** #if defined(STM32F401xx)
+ 400:platform/cmsis/device/system_stm32f4xx.c **** #define PLL_N      336
+ 401:platform/cmsis/device/system_stm32f4xx.c **** /* SYSCLK = PLL_VCO / PLL_P */
+ 402:platform/cmsis/device/system_stm32f4xx.c **** #define PLL_P      4
+ 403:platform/cmsis/device/system_stm32f4xx.c **** #endif /* STM32F401xx */
+ 404:platform/cmsis/device/system_stm32f4xx.c **** 
+ 405:platform/cmsis/device/system_stm32f4xx.c **** #if defined(STM32F410xx) || defined(STM32F411xE) || defined(STM32F412xG) || defined(STM32F413_423xx
+ 406:platform/cmsis/device/system_stm32f4xx.c **** #define PLL_N      400
+ 407:platform/cmsis/device/system_stm32f4xx.c **** /* SYSCLK = PLL_VCO / PLL_P */
+ 408:platform/cmsis/device/system_stm32f4xx.c **** #define PLL_P      4   
+ 409:platform/cmsis/device/system_stm32f4xx.c **** #endif /* STM32F410xx || STM32F411xE || STM32F412xG || STM32F413_423xx */
+ 410:platform/cmsis/device/system_stm32f4xx.c **** 
+ 411:platform/cmsis/device/system_stm32f4xx.c **** /******************************************************************************/
+ 412:platform/cmsis/device/system_stm32f4xx.c **** 
+ 413:platform/cmsis/device/system_stm32f4xx.c **** /**
+ 414:platform/cmsis/device/system_stm32f4xx.c ****   * @}
+ 415:platform/cmsis/device/system_stm32f4xx.c ****   */
+ 416:platform/cmsis/device/system_stm32f4xx.c **** 
+ 417:platform/cmsis/device/system_stm32f4xx.c **** /** @addtogroup STM32F4xx_System_Private_Macros
+ 418:platform/cmsis/device/system_stm32f4xx.c ****   * @{
+ 419:platform/cmsis/device/system_stm32f4xx.c ****   */
+ 420:platform/cmsis/device/system_stm32f4xx.c **** 
+ 421:platform/cmsis/device/system_stm32f4xx.c **** /**
+ 422:platform/cmsis/device/system_stm32f4xx.c ****   * @}
+ 423:platform/cmsis/device/system_stm32f4xx.c ****   */
+ 424:platform/cmsis/device/system_stm32f4xx.c **** 
+ 425:platform/cmsis/device/system_stm32f4xx.c **** /** @addtogroup STM32F4xx_System_Private_Variables
+ 426:platform/cmsis/device/system_stm32f4xx.c ****   * @{
+ 427:platform/cmsis/device/system_stm32f4xx.c ****   */
+ 428:platform/cmsis/device/system_stm32f4xx.c **** 
+ 429:platform/cmsis/device/system_stm32f4xx.c **** #if defined(STM32F40_41xxx)
+ 430:platform/cmsis/device/system_stm32f4xx.c ****   uint32_t SystemCoreClock = 168000000;
+ARM GAS  /tmp/cclhuhzK.s 			page 9
+
+
+ 431:platform/cmsis/device/system_stm32f4xx.c **** #endif /* STM32F40_41xxx */
+ 432:platform/cmsis/device/system_stm32f4xx.c **** 
+ 433:platform/cmsis/device/system_stm32f4xx.c **** #if defined(STM32F427_437xx) || defined(STM32F429_439xx) || defined(STM32F446xx) || defined(STM32F4
+ 434:platform/cmsis/device/system_stm32f4xx.c ****   uint32_t SystemCoreClock = 180000000;
+ 435:platform/cmsis/device/system_stm32f4xx.c **** #endif /* STM32F427_437x || STM32F429_439xx || STM32F446xx || STM32F469_479xx */
+ 436:platform/cmsis/device/system_stm32f4xx.c **** 
+ 437:platform/cmsis/device/system_stm32f4xx.c **** #if defined(STM32F401xx)
+ 438:platform/cmsis/device/system_stm32f4xx.c ****   uint32_t SystemCoreClock = 84000000;
+ 439:platform/cmsis/device/system_stm32f4xx.c **** #endif /* STM32F401xx */
+ 440:platform/cmsis/device/system_stm32f4xx.c **** 
+ 441:platform/cmsis/device/system_stm32f4xx.c **** #if defined(STM32F410xx) || defined(STM32F411xE) || defined(STM32F412xG) || defined(STM32F413_423xx
+ 442:platform/cmsis/device/system_stm32f4xx.c ****   uint32_t SystemCoreClock = 100000000;
+ 443:platform/cmsis/device/system_stm32f4xx.c **** #endif /* STM32F410xx || STM32F401xE || STM32F412xG || STM32F413_423xx */
+ 444:platform/cmsis/device/system_stm32f4xx.c **** 
+ 445:platform/cmsis/device/system_stm32f4xx.c **** __I uint8_t AHBPrescTable[16] = {0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 6, 7, 8, 9};
+ 446:platform/cmsis/device/system_stm32f4xx.c **** 
+ 447:platform/cmsis/device/system_stm32f4xx.c **** /**
+ 448:platform/cmsis/device/system_stm32f4xx.c ****   * @}
+ 449:platform/cmsis/device/system_stm32f4xx.c ****   */
+ 450:platform/cmsis/device/system_stm32f4xx.c **** 
+ 451:platform/cmsis/device/system_stm32f4xx.c **** /** @addtogroup STM32F4xx_System_Private_FunctionPrototypes
+ 452:platform/cmsis/device/system_stm32f4xx.c ****   * @{
+ 453:platform/cmsis/device/system_stm32f4xx.c ****   */
+ 454:platform/cmsis/device/system_stm32f4xx.c **** 
+ 455:platform/cmsis/device/system_stm32f4xx.c **** static void SetSysClock(void);
+ 456:platform/cmsis/device/system_stm32f4xx.c **** 
+ 457:platform/cmsis/device/system_stm32f4xx.c **** #if defined(DATA_IN_ExtSRAM) || defined(DATA_IN_ExtSDRAM)
+ 458:platform/cmsis/device/system_stm32f4xx.c **** static void SystemInit_ExtMemCtl(void); 
+ 459:platform/cmsis/device/system_stm32f4xx.c **** #endif /* DATA_IN_ExtSRAM || DATA_IN_ExtSDRAM */
+ 460:platform/cmsis/device/system_stm32f4xx.c **** 
+ 461:platform/cmsis/device/system_stm32f4xx.c **** /**
+ 462:platform/cmsis/device/system_stm32f4xx.c ****   * @}
+ 463:platform/cmsis/device/system_stm32f4xx.c ****   */
+ 464:platform/cmsis/device/system_stm32f4xx.c **** 
+ 465:platform/cmsis/device/system_stm32f4xx.c **** /** @addtogroup STM32F4xx_System_Private_Functions
+ 466:platform/cmsis/device/system_stm32f4xx.c ****   * @{
+ 467:platform/cmsis/device/system_stm32f4xx.c ****   */
+ 468:platform/cmsis/device/system_stm32f4xx.c **** 
+ 469:platform/cmsis/device/system_stm32f4xx.c **** /**
+ 470:platform/cmsis/device/system_stm32f4xx.c ****   * @brief  Setup the microcontroller system
+ 471:platform/cmsis/device/system_stm32f4xx.c ****   *         Initialize the Embedded Flash Interface, the PLL and update the 
+ 472:platform/cmsis/device/system_stm32f4xx.c ****   *         SystemFrequency variable.
+ 473:platform/cmsis/device/system_stm32f4xx.c ****   * @param  None
+ 474:platform/cmsis/device/system_stm32f4xx.c ****   * @retval None
+ 475:platform/cmsis/device/system_stm32f4xx.c ****   */
+ 476:platform/cmsis/device/system_stm32f4xx.c **** void SystemInit(void)
+ 477:platform/cmsis/device/system_stm32f4xx.c **** {
+ 478:platform/cmsis/device/system_stm32f4xx.c ****   /* FPU settings ------------------------------------------------------------*/
+ 479:platform/cmsis/device/system_stm32f4xx.c ****   #if (__FPU_PRESENT == 1) && (__FPU_USED == 1)
+ 480:platform/cmsis/device/system_stm32f4xx.c ****     SCB->CPACR |= ((3UL << 10*2)|(3UL << 11*2));  /* set CP10 and CP11 Full Access */
+ 481:platform/cmsis/device/system_stm32f4xx.c ****   #endif
+ 482:platform/cmsis/device/system_stm32f4xx.c ****   /* Reset the RCC clock configuration to the default reset state ------------*/
+ 483:platform/cmsis/device/system_stm32f4xx.c ****   /* Set HSION bit */
+ 484:platform/cmsis/device/system_stm32f4xx.c ****   RCC->CR |= (uint32_t)0x00000001;
+ 485:platform/cmsis/device/system_stm32f4xx.c **** 
+ 486:platform/cmsis/device/system_stm32f4xx.c ****   /* Reset CFGR register */
+ 487:platform/cmsis/device/system_stm32f4xx.c ****   RCC->CFGR = 0x00000000;
+ARM GAS  /tmp/cclhuhzK.s 			page 10
+
+
+ 488:platform/cmsis/device/system_stm32f4xx.c **** 
+ 489:platform/cmsis/device/system_stm32f4xx.c ****   /* Reset HSEON, CSSON and PLLON bits */
+ 490:platform/cmsis/device/system_stm32f4xx.c ****   RCC->CR &= (uint32_t)0xFEF6FFFF;
+ 491:platform/cmsis/device/system_stm32f4xx.c **** 
+ 492:platform/cmsis/device/system_stm32f4xx.c ****   /* Reset PLLCFGR register */
+ 493:platform/cmsis/device/system_stm32f4xx.c ****   RCC->PLLCFGR = 0x24003010;
+ 494:platform/cmsis/device/system_stm32f4xx.c **** 
+ 495:platform/cmsis/device/system_stm32f4xx.c ****   /* Reset HSEBYP bit */
+ 496:platform/cmsis/device/system_stm32f4xx.c ****   RCC->CR &= (uint32_t)0xFFFBFFFF;
+ 497:platform/cmsis/device/system_stm32f4xx.c **** 
+ 498:platform/cmsis/device/system_stm32f4xx.c ****   /* Disable all interrupts */
+ 499:platform/cmsis/device/system_stm32f4xx.c ****   RCC->CIR = 0x00000000;
+ 500:platform/cmsis/device/system_stm32f4xx.c **** 
+ 501:platform/cmsis/device/system_stm32f4xx.c **** #if defined(DATA_IN_ExtSRAM) || defined(DATA_IN_ExtSDRAM)
+ 502:platform/cmsis/device/system_stm32f4xx.c ****   SystemInit_ExtMemCtl(); 
+ 503:platform/cmsis/device/system_stm32f4xx.c **** #endif /* DATA_IN_ExtSRAM || DATA_IN_ExtSDRAM */
+ 504:platform/cmsis/device/system_stm32f4xx.c ****          
+ 505:platform/cmsis/device/system_stm32f4xx.c ****   /* Configure the System clock source, PLL Multiplier and Divider factors, 
+ 506:platform/cmsis/device/system_stm32f4xx.c ****      AHB/APBx prescalers and Flash settings ----------------------------------*/
+ 507:platform/cmsis/device/system_stm32f4xx.c ****   SetSysClock();
+ 508:platform/cmsis/device/system_stm32f4xx.c **** 
+ 509:platform/cmsis/device/system_stm32f4xx.c ****   /* Configure the Vector Table location add offset address ------------------*/
+ 510:platform/cmsis/device/system_stm32f4xx.c **** #ifdef VECT_TAB_SRAM
+ 511:platform/cmsis/device/system_stm32f4xx.c ****   SCB->VTOR = SRAM_BASE | VECT_TAB_OFFSET; /* Vector Table Relocation in Internal SRAM */
+ 512:platform/cmsis/device/system_stm32f4xx.c **** #else
+ 513:platform/cmsis/device/system_stm32f4xx.c ****   SCB->VTOR = FLASH_BASE | VECT_TAB_OFFSET; /* Vector Table Relocation in Internal FLASH */
+ 514:platform/cmsis/device/system_stm32f4xx.c **** #endif
+ 515:platform/cmsis/device/system_stm32f4xx.c **** }
+ 516:platform/cmsis/device/system_stm32f4xx.c **** 
+ 517:platform/cmsis/device/system_stm32f4xx.c **** /**
+ 518:platform/cmsis/device/system_stm32f4xx.c ****    * @brief  Update SystemCoreClock variable according to Clock Register Values.
+ 519:platform/cmsis/device/system_stm32f4xx.c ****   *         The SystemCoreClock variable contains the core clock (HCLK), it can
+ 520:platform/cmsis/device/system_stm32f4xx.c ****   *         be used by the user application to setup the SysTick timer or configure
+ 521:platform/cmsis/device/system_stm32f4xx.c ****   *         other parameters.
+ 522:platform/cmsis/device/system_stm32f4xx.c ****   *           
+ 523:platform/cmsis/device/system_stm32f4xx.c ****   * @note   Each time the core clock (HCLK) changes, this function must be called
+ 524:platform/cmsis/device/system_stm32f4xx.c ****   *         to update SystemCoreClock variable value. Otherwise, any configuration
+ 525:platform/cmsis/device/system_stm32f4xx.c ****   *         based on this variable will be incorrect.         
+ 526:platform/cmsis/device/system_stm32f4xx.c ****   *     
+ 527:platform/cmsis/device/system_stm32f4xx.c ****   * @note   - The system frequency computed by this function is not the real 
+ 528:platform/cmsis/device/system_stm32f4xx.c ****   *           frequency in the chip. It is calculated based on the predefined 
+ 529:platform/cmsis/device/system_stm32f4xx.c ****   *           constant and the selected clock source:
+ 530:platform/cmsis/device/system_stm32f4xx.c ****   *             
+ 531:platform/cmsis/device/system_stm32f4xx.c ****   *           - If SYSCLK source is HSI, SystemCoreClock will contain the HSI_VALUE(*)
+ 532:platform/cmsis/device/system_stm32f4xx.c ****   *                                              
+ 533:platform/cmsis/device/system_stm32f4xx.c ****   *           - If SYSCLK source is HSE, SystemCoreClock will contain the HSE_VALUE(**)
+ 534:platform/cmsis/device/system_stm32f4xx.c ****   *                          
+ 535:platform/cmsis/device/system_stm32f4xx.c ****   *           - If SYSCLK source is PLL, SystemCoreClock will contain the HSE_VALUE(**) 
+ 536:platform/cmsis/device/system_stm32f4xx.c ****   *             or HSI_VALUE(*) multiplied/divided by the PLL factors.
+ 537:platform/cmsis/device/system_stm32f4xx.c ****   *         
+ 538:platform/cmsis/device/system_stm32f4xx.c ****   *         (*) HSI_VALUE is a constant defined in stm32f4xx.h file (default value
+ 539:platform/cmsis/device/system_stm32f4xx.c ****   *             16 MHz) but the real value may vary depending on the variations
+ 540:platform/cmsis/device/system_stm32f4xx.c ****   *             in voltage and temperature.   
+ 541:platform/cmsis/device/system_stm32f4xx.c ****   *    
+ 542:platform/cmsis/device/system_stm32f4xx.c ****   *         (**) HSE_VALUE is a constant defined in stm32f4xx.h file (default value
+ 543:platform/cmsis/device/system_stm32f4xx.c ****   *              25 MHz), user has to ensure that HSE_VALUE is same as the real
+ 544:platform/cmsis/device/system_stm32f4xx.c ****   *              frequency of the crystal used. Otherwise, this function may
+ARM GAS  /tmp/cclhuhzK.s 			page 11
+
+
+ 545:platform/cmsis/device/system_stm32f4xx.c ****   *              have wrong result.
+ 546:platform/cmsis/device/system_stm32f4xx.c ****   *                
+ 547:platform/cmsis/device/system_stm32f4xx.c ****   *         - The result of this function could be not correct when using fractional
+ 548:platform/cmsis/device/system_stm32f4xx.c ****   *           value for HSE crystal.
+ 549:platform/cmsis/device/system_stm32f4xx.c ****   *     
+ 550:platform/cmsis/device/system_stm32f4xx.c ****   * @param  None
+ 551:platform/cmsis/device/system_stm32f4xx.c ****   * @retval None
+ 552:platform/cmsis/device/system_stm32f4xx.c ****   */
+ 553:platform/cmsis/device/system_stm32f4xx.c **** void SystemCoreClockUpdate(void)
+ 554:platform/cmsis/device/system_stm32f4xx.c **** {
+ 555:platform/cmsis/device/system_stm32f4xx.c ****   uint32_t tmp = 0, pllvco = 0, pllp = 2, pllsource = 0, pllm = 2;
+ 556:platform/cmsis/device/system_stm32f4xx.c **** #if defined(STM32F412xG) || defined(STM32F413_423xx) || defined(STM32F446xx)  
+ 557:platform/cmsis/device/system_stm32f4xx.c ****   uint32_t pllr = 2;
+ 558:platform/cmsis/device/system_stm32f4xx.c **** #endif /* STM32F412xG || STM32F413_423xx || STM32F446xx */
+ 559:platform/cmsis/device/system_stm32f4xx.c ****   /* Get SYSCLK source -------------------------------------------------------*/
+ 560:platform/cmsis/device/system_stm32f4xx.c ****   tmp = RCC->CFGR & RCC_CFGR_SWS;
+ 561:platform/cmsis/device/system_stm32f4xx.c **** 
+ 562:platform/cmsis/device/system_stm32f4xx.c ****   switch (tmp)
+ 563:platform/cmsis/device/system_stm32f4xx.c ****   {
+ 564:platform/cmsis/device/system_stm32f4xx.c ****     case 0x00:  /* HSI used as system clock source */
+ 565:platform/cmsis/device/system_stm32f4xx.c ****       SystemCoreClock = HSI_VALUE;
+ 566:platform/cmsis/device/system_stm32f4xx.c ****       break;
+ 567:platform/cmsis/device/system_stm32f4xx.c ****     case 0x04:  /* HSE used as system clock source */
+ 568:platform/cmsis/device/system_stm32f4xx.c ****       SystemCoreClock = HSE_VALUE;
+ 569:platform/cmsis/device/system_stm32f4xx.c ****       break;
+ 570:platform/cmsis/device/system_stm32f4xx.c ****     case 0x08:  /* PLL P used as system clock source */
+ 571:platform/cmsis/device/system_stm32f4xx.c ****        /* PLL_VCO = (HSE_VALUE or HSI_VALUE / PLL_M) * PLL_N
+ 572:platform/cmsis/device/system_stm32f4xx.c ****          SYSCLK = PLL_VCO / PLL_P
+ 573:platform/cmsis/device/system_stm32f4xx.c ****          */    
+ 574:platform/cmsis/device/system_stm32f4xx.c ****       pllsource = (RCC->PLLCFGR & RCC_PLLCFGR_PLLSRC) >> 22;
+ 575:platform/cmsis/device/system_stm32f4xx.c ****       pllm = RCC->PLLCFGR & RCC_PLLCFGR_PLLM;
+ 576:platform/cmsis/device/system_stm32f4xx.c ****       
+ 577:platform/cmsis/device/system_stm32f4xx.c **** #if defined(STM32F40_41xxx) || defined(STM32F427_437xx) || defined(STM32F429_439xx) || defined(STM3
+ 578:platform/cmsis/device/system_stm32f4xx.c ****       if (pllsource != 0)
+ 579:platform/cmsis/device/system_stm32f4xx.c ****       {
+ 580:platform/cmsis/device/system_stm32f4xx.c ****         /* HSE used as PLL clock source */
+ 581:platform/cmsis/device/system_stm32f4xx.c ****         pllvco = (HSE_VALUE / pllm) * ((RCC->PLLCFGR & RCC_PLLCFGR_PLLN) >> 6);
+ 582:platform/cmsis/device/system_stm32f4xx.c ****       }
+ 583:platform/cmsis/device/system_stm32f4xx.c ****       else
+ 584:platform/cmsis/device/system_stm32f4xx.c ****       {
+ 585:platform/cmsis/device/system_stm32f4xx.c ****         /* HSI used as PLL clock source */
+ 586:platform/cmsis/device/system_stm32f4xx.c ****         pllvco = (HSI_VALUE / pllm) * ((RCC->PLLCFGR & RCC_PLLCFGR_PLLN) >> 6);
+ 587:platform/cmsis/device/system_stm32f4xx.c ****       }
+ 588:platform/cmsis/device/system_stm32f4xx.c **** #elif defined(STM32F410xx) || defined(STM32F411xE)
+ 589:platform/cmsis/device/system_stm32f4xx.c **** #if defined(USE_HSE_BYPASS)
+ 590:platform/cmsis/device/system_stm32f4xx.c ****       if (pllsource != 0)
+ 591:platform/cmsis/device/system_stm32f4xx.c ****       {
+ 592:platform/cmsis/device/system_stm32f4xx.c ****         /* HSE used as PLL clock source */
+ 593:platform/cmsis/device/system_stm32f4xx.c ****         pllvco = (HSE_BYPASS_INPUT_FREQUENCY / pllm) * ((RCC->PLLCFGR & RCC_PLLCFGR_PLLN) >> 6);
+ 594:platform/cmsis/device/system_stm32f4xx.c ****       }  
+ 595:platform/cmsis/device/system_stm32f4xx.c **** #else  
+ 596:platform/cmsis/device/system_stm32f4xx.c ****       if (pllsource == 0)
+ 597:platform/cmsis/device/system_stm32f4xx.c ****       {
+ 598:platform/cmsis/device/system_stm32f4xx.c ****         /* HSI used as PLL clock source */
+ 599:platform/cmsis/device/system_stm32f4xx.c ****         pllvco = (HSI_VALUE / pllm) * ((RCC->PLLCFGR & RCC_PLLCFGR_PLLN) >> 6);
+ 600:platform/cmsis/device/system_stm32f4xx.c ****       }  
+ 601:platform/cmsis/device/system_stm32f4xx.c **** #endif /* USE_HSE_BYPASS */  
+ARM GAS  /tmp/cclhuhzK.s 			page 12
+
+
+ 602:platform/cmsis/device/system_stm32f4xx.c **** #endif /* STM32F40_41xxx || STM32F427_437xx || STM32F429_439xx || STM32F401xx || STM32F412xG || STM
+ 603:platform/cmsis/device/system_stm32f4xx.c ****       pllp = (((RCC->PLLCFGR & RCC_PLLCFGR_PLLP) >>16) + 1 ) *2;
+ 604:platform/cmsis/device/system_stm32f4xx.c ****       SystemCoreClock = pllvco/pllp;      
+ 605:platform/cmsis/device/system_stm32f4xx.c ****       break;
+ 606:platform/cmsis/device/system_stm32f4xx.c **** #if defined(STM32F412xG) || defined(STM32F413_423xx) || defined(STM32F446xx)      
+ 607:platform/cmsis/device/system_stm32f4xx.c ****       case 0x0C:  /* PLL R used as system clock source */
+ 608:platform/cmsis/device/system_stm32f4xx.c ****        /* PLL_VCO = (HSE_VALUE or HSI_VALUE / PLL_M) * PLL_N
+ 609:platform/cmsis/device/system_stm32f4xx.c ****          SYSCLK = PLL_VCO / PLL_R
+ 610:platform/cmsis/device/system_stm32f4xx.c ****          */    
+ 611:platform/cmsis/device/system_stm32f4xx.c ****       pllsource = (RCC->PLLCFGR & RCC_PLLCFGR_PLLSRC) >> 22;
+ 612:platform/cmsis/device/system_stm32f4xx.c ****       pllm = RCC->PLLCFGR & RCC_PLLCFGR_PLLM;
+ 613:platform/cmsis/device/system_stm32f4xx.c ****       if (pllsource != 0)
+ 614:platform/cmsis/device/system_stm32f4xx.c ****       {
+ 615:platform/cmsis/device/system_stm32f4xx.c ****         /* HSE used as PLL clock source */
+ 616:platform/cmsis/device/system_stm32f4xx.c ****         pllvco = (HSE_VALUE / pllm) * ((RCC->PLLCFGR & RCC_PLLCFGR_PLLN) >> 6);
+ 617:platform/cmsis/device/system_stm32f4xx.c ****       }
+ 618:platform/cmsis/device/system_stm32f4xx.c ****       else
+ 619:platform/cmsis/device/system_stm32f4xx.c ****       {
+ 620:platform/cmsis/device/system_stm32f4xx.c ****         /* HSI used as PLL clock source */
+ 621:platform/cmsis/device/system_stm32f4xx.c ****         pllvco = (HSI_VALUE / pllm) * ((RCC->PLLCFGR & RCC_PLLCFGR_PLLN) >> 6);      
+ 622:platform/cmsis/device/system_stm32f4xx.c ****       }
+ 623:platform/cmsis/device/system_stm32f4xx.c ****  
+ 624:platform/cmsis/device/system_stm32f4xx.c ****       pllr = (((RCC->PLLCFGR & RCC_PLLCFGR_PLLR) >>28) + 1 ) *2;
+ 625:platform/cmsis/device/system_stm32f4xx.c ****       SystemCoreClock = pllvco/pllr;      
+ 626:platform/cmsis/device/system_stm32f4xx.c ****       break;
+ 627:platform/cmsis/device/system_stm32f4xx.c **** #endif /* STM32F412xG || STM32F413_423xx || STM32F446xx */
+ 628:platform/cmsis/device/system_stm32f4xx.c ****     default:
+ 629:platform/cmsis/device/system_stm32f4xx.c ****       SystemCoreClock = HSI_VALUE;
+ 630:platform/cmsis/device/system_stm32f4xx.c ****       break;
+ 631:platform/cmsis/device/system_stm32f4xx.c ****   }
+ 632:platform/cmsis/device/system_stm32f4xx.c ****   /* Compute HCLK frequency --------------------------------------------------*/
+ 633:platform/cmsis/device/system_stm32f4xx.c ****   /* Get HCLK prescaler */
+ 634:platform/cmsis/device/system_stm32f4xx.c ****   tmp = AHBPrescTable[((RCC->CFGR & RCC_CFGR_HPRE) >> 4)];
+ 635:platform/cmsis/device/system_stm32f4xx.c ****   /* HCLK frequency */
+ 636:platform/cmsis/device/system_stm32f4xx.c ****   SystemCoreClock >>= tmp;
+ 637:platform/cmsis/device/system_stm32f4xx.c **** }
+ 638:platform/cmsis/device/system_stm32f4xx.c **** 
+ 639:platform/cmsis/device/system_stm32f4xx.c **** /**
+ 640:platform/cmsis/device/system_stm32f4xx.c ****   * @brief  Configures the System clock source, PLL Multiplier and Divider factors, 
+ 641:platform/cmsis/device/system_stm32f4xx.c ****   *         AHB/APBx prescalers and Flash settings
+ 642:platform/cmsis/device/system_stm32f4xx.c ****   * @Note   This function should be called only once the RCC clock configuration  
+ 643:platform/cmsis/device/system_stm32f4xx.c ****   *         is reset to the default reset state (done in SystemInit() function).   
+ 644:platform/cmsis/device/system_stm32f4xx.c ****   * @param  None
+ 645:platform/cmsis/device/system_stm32f4xx.c ****   * @retval None
+ 646:platform/cmsis/device/system_stm32f4xx.c ****   */
+ 647:platform/cmsis/device/system_stm32f4xx.c **** static void SetSysClock(void)
+ 648:platform/cmsis/device/system_stm32f4xx.c **** {
+  28              		.loc 1 648 1 view -0
+  29              		.cfi_startproc
+  30              		@ args = 0, pretend = 0, frame = 8
+  31              		@ frame_needed = 0, uses_anonymous_args = 0
+  32              		@ link register save eliminated.
+  33 0000 82B0     		sub	sp, sp, #8
+  34              	.LCFI0:
+  35              		.cfi_def_cfa_offset 8
+ 649:platform/cmsis/device/system_stm32f4xx.c **** #if defined(STM32F40_41xxx) || defined(STM32F427_437xx) || defined(STM32F429_439xx) || defined(STM3
+ 650:platform/cmsis/device/system_stm32f4xx.c **** /******************************************************************************/
+ARM GAS  /tmp/cclhuhzK.s 			page 13
+
+
+ 651:platform/cmsis/device/system_stm32f4xx.c **** /*            PLL (clocked by HSE) used as System clock source                */
+ 652:platform/cmsis/device/system_stm32f4xx.c **** /******************************************************************************/
+ 653:platform/cmsis/device/system_stm32f4xx.c ****   __IO uint32_t StartUpCounter = 0, HSEStatus = 0;
+  36              		.loc 1 653 3 view .LVU1
+  37              		.loc 1 653 17 is_stmt 0 view .LVU2
+  38 0002 0023     		movs	r3, #0
+  39 0004 0193     		str	r3, [sp, #4]
+  40              		.loc 1 653 37 view .LVU3
+  41 0006 0093     		str	r3, [sp]
+ 654:platform/cmsis/device/system_stm32f4xx.c ****   
+ 655:platform/cmsis/device/system_stm32f4xx.c ****   /* Enable HSE */
+ 656:platform/cmsis/device/system_stm32f4xx.c ****   RCC->CR |= ((uint32_t)RCC_CR_HSEON);
+  42              		.loc 1 656 3 is_stmt 1 view .LVU4
+  43              		.loc 1 656 11 is_stmt 0 view .LVU5
+  44 0008 2A4A     		ldr	r2, .L11
+  45 000a 1368     		ldr	r3, [r2]
+  46 000c 43F48033 		orr	r3, r3, #65536
+  47 0010 1360     		str	r3, [r2]
+  48              	.L3:
+ 657:platform/cmsis/device/system_stm32f4xx.c ****  
+ 658:platform/cmsis/device/system_stm32f4xx.c ****   /* Wait till HSE is ready and if Time out is reached exit */
+ 659:platform/cmsis/device/system_stm32f4xx.c ****   do
+  49              		.loc 1 659 3 is_stmt 1 discriminator 2 view .LVU6
+ 660:platform/cmsis/device/system_stm32f4xx.c ****   {
+ 661:platform/cmsis/device/system_stm32f4xx.c ****     HSEStatus = RCC->CR & RCC_CR_HSERDY;
+  50              		.loc 1 661 5 discriminator 2 view .LVU7
+  51              		.loc 1 661 20 is_stmt 0 discriminator 2 view .LVU8
+  52 0012 284B     		ldr	r3, .L11
+  53 0014 1B68     		ldr	r3, [r3]
+  54              		.loc 1 661 25 discriminator 2 view .LVU9
+  55 0016 03F40033 		and	r3, r3, #131072
+  56              		.loc 1 661 15 discriminator 2 view .LVU10
+  57 001a 0093     		str	r3, [sp]
+ 662:platform/cmsis/device/system_stm32f4xx.c ****     StartUpCounter++;
+  58              		.loc 1 662 5 is_stmt 1 discriminator 2 view .LVU11
+  59              		.loc 1 662 19 is_stmt 0 discriminator 2 view .LVU12
+  60 001c 019B     		ldr	r3, [sp, #4]
+  61 001e 0133     		adds	r3, r3, #1
+  62 0020 0193     		str	r3, [sp, #4]
+ 663:platform/cmsis/device/system_stm32f4xx.c ****   } while((HSEStatus == 0) && (StartUpCounter != HSE_STARTUP_TIMEOUT));
+  63              		.loc 1 663 10 is_stmt 1 discriminator 2 view .LVU13
+  64              		.loc 1 663 22 is_stmt 0 discriminator 2 view .LVU14
+  65 0022 009B     		ldr	r3, [sp]
+  66              		.loc 1 663 3 discriminator 2 view .LVU15
+  67 0024 1BB9     		cbnz	r3, .L2
+  68              		.loc 1 663 47 discriminator 1 view .LVU16
+  69 0026 019B     		ldr	r3, [sp, #4]
+  70              		.loc 1 663 28 discriminator 1 view .LVU17
+  71 0028 B3F5A04F 		cmp	r3, #20480
+  72 002c F1D1     		bne	.L3
+  73              	.L2:
+ 664:platform/cmsis/device/system_stm32f4xx.c **** 
+ 665:platform/cmsis/device/system_stm32f4xx.c ****   if ((RCC->CR & RCC_CR_HSERDY) != RESET)
+  74              		.loc 1 665 3 is_stmt 1 view .LVU18
+  75              		.loc 1 665 11 is_stmt 0 view .LVU19
+  76 002e 214B     		ldr	r3, .L11
+  77 0030 1B68     		ldr	r3, [r3]
+ARM GAS  /tmp/cclhuhzK.s 			page 14
+
+
+  78              		.loc 1 665 6 view .LVU20
+  79 0032 13F4003F 		tst	r3, #131072
+  80 0036 06D0     		beq	.L4
+ 666:platform/cmsis/device/system_stm32f4xx.c ****   {
+ 667:platform/cmsis/device/system_stm32f4xx.c ****     HSEStatus = (uint32_t)0x01;
+  81              		.loc 1 667 5 is_stmt 1 view .LVU21
+  82              		.loc 1 667 15 is_stmt 0 view .LVU22
+  83 0038 0123     		movs	r3, #1
+  84 003a 0093     		str	r3, [sp]
+  85              	.L5:
+ 668:platform/cmsis/device/system_stm32f4xx.c ****   }
+ 669:platform/cmsis/device/system_stm32f4xx.c ****   else
+ 670:platform/cmsis/device/system_stm32f4xx.c ****   {
+ 671:platform/cmsis/device/system_stm32f4xx.c ****     HSEStatus = (uint32_t)0x00;
+ 672:platform/cmsis/device/system_stm32f4xx.c ****   }
+ 673:platform/cmsis/device/system_stm32f4xx.c **** 
+ 674:platform/cmsis/device/system_stm32f4xx.c ****   if (HSEStatus == (uint32_t)0x01)
+  86              		.loc 1 674 3 is_stmt 1 view .LVU23
+  87              		.loc 1 674 17 is_stmt 0 view .LVU24
+  88 003c 009B     		ldr	r3, [sp]
+  89              		.loc 1 674 6 view .LVU25
+  90 003e 012B     		cmp	r3, #1
+  91 0040 04D0     		beq	.L10
+  92              	.L1:
+ 675:platform/cmsis/device/system_stm32f4xx.c ****   {
+ 676:platform/cmsis/device/system_stm32f4xx.c ****     /* Select regulator voltage output Scale 1 mode */
+ 677:platform/cmsis/device/system_stm32f4xx.c ****     RCC->APB1ENR |= RCC_APB1ENR_PWREN;
+ 678:platform/cmsis/device/system_stm32f4xx.c ****     PWR->CR |= PWR_CR_VOS;
+ 679:platform/cmsis/device/system_stm32f4xx.c **** 
+ 680:platform/cmsis/device/system_stm32f4xx.c ****     /* HCLK = SYSCLK / 1*/
+ 681:platform/cmsis/device/system_stm32f4xx.c ****     RCC->CFGR |= RCC_CFGR_HPRE_DIV1;
+ 682:platform/cmsis/device/system_stm32f4xx.c **** 
+ 683:platform/cmsis/device/system_stm32f4xx.c **** #if defined(STM32F40_41xxx) || defined(STM32F427_437xx) || defined(STM32F429_439xx) ||  defined(STM
+ 684:platform/cmsis/device/system_stm32f4xx.c ****     /* PCLK2 = HCLK / 2*/
+ 685:platform/cmsis/device/system_stm32f4xx.c ****     RCC->CFGR |= RCC_CFGR_PPRE2_DIV2;
+ 686:platform/cmsis/device/system_stm32f4xx.c ****     
+ 687:platform/cmsis/device/system_stm32f4xx.c ****     /* PCLK1 = HCLK / 4*/
+ 688:platform/cmsis/device/system_stm32f4xx.c ****     RCC->CFGR |= RCC_CFGR_PPRE1_DIV4;
+ 689:platform/cmsis/device/system_stm32f4xx.c **** #endif /* STM32F40_41xxx || STM32F427_437x || STM32F429_439xx  || STM32F412xG || STM32F446xx || STM
+ 690:platform/cmsis/device/system_stm32f4xx.c **** 
+ 691:platform/cmsis/device/system_stm32f4xx.c **** #if defined(STM32F401xx) || defined(STM32F413_423xx)
+ 692:platform/cmsis/device/system_stm32f4xx.c ****     /* PCLK2 = HCLK / 1*/
+ 693:platform/cmsis/device/system_stm32f4xx.c ****     RCC->CFGR |= RCC_CFGR_PPRE2_DIV1;
+ 694:platform/cmsis/device/system_stm32f4xx.c ****     
+ 695:platform/cmsis/device/system_stm32f4xx.c ****     /* PCLK1 = HCLK / 2*/
+ 696:platform/cmsis/device/system_stm32f4xx.c ****     RCC->CFGR |= RCC_CFGR_PPRE1_DIV2;
+ 697:platform/cmsis/device/system_stm32f4xx.c **** #endif /* STM32F401xx || STM32F413_423xx */
+ 698:platform/cmsis/device/system_stm32f4xx.c **** 
+ 699:platform/cmsis/device/system_stm32f4xx.c **** #if defined(STM32F40_41xxx) || defined(STM32F427_437xx) || defined(STM32F429_439xx) || defined(STM3
+ 700:platform/cmsis/device/system_stm32f4xx.c ****     /* Configure the main PLL */
+ 701:platform/cmsis/device/system_stm32f4xx.c ****     RCC->PLLCFGR = PLL_M | (PLL_N << 6) | (((PLL_P >> 1) -1) << 16) |
+ 702:platform/cmsis/device/system_stm32f4xx.c ****                    (RCC_PLLCFGR_PLLSRC_HSE) | (PLL_Q << 24);
+ 703:platform/cmsis/device/system_stm32f4xx.c **** #endif /* STM32F40_41xxx || STM32F401xx || STM32F427_437x || STM32F429_439xx || STM32F469_479xx */
+ 704:platform/cmsis/device/system_stm32f4xx.c **** 
+ 705:platform/cmsis/device/system_stm32f4xx.c **** #if  defined(STM32F412xG) || defined(STM32F413_423xx) || defined(STM32F446xx)
+ 706:platform/cmsis/device/system_stm32f4xx.c ****     /* Configure the main PLL */
+ 707:platform/cmsis/device/system_stm32f4xx.c ****     RCC->PLLCFGR = PLL_M | (PLL_N << 6) | (((PLL_P >> 1) -1) << 16) |
+ARM GAS  /tmp/cclhuhzK.s 			page 15
+
+
+ 708:platform/cmsis/device/system_stm32f4xx.c ****                    (RCC_PLLCFGR_PLLSRC_HSE) | (PLL_Q << 24) | (PLL_R << 28);
+ 709:platform/cmsis/device/system_stm32f4xx.c **** #endif /* STM32F412xG || STM32F413_423xx || STM32F446xx */    
+ 710:platform/cmsis/device/system_stm32f4xx.c ****     
+ 711:platform/cmsis/device/system_stm32f4xx.c ****     /* Enable the main PLL */
+ 712:platform/cmsis/device/system_stm32f4xx.c ****     RCC->CR |= RCC_CR_PLLON;
+ 713:platform/cmsis/device/system_stm32f4xx.c **** 
+ 714:platform/cmsis/device/system_stm32f4xx.c ****     /* Wait till the main PLL is ready */
+ 715:platform/cmsis/device/system_stm32f4xx.c ****     while((RCC->CR & RCC_CR_PLLRDY) == 0)
+ 716:platform/cmsis/device/system_stm32f4xx.c ****     {
+ 717:platform/cmsis/device/system_stm32f4xx.c ****     }
+ 718:platform/cmsis/device/system_stm32f4xx.c ****    
+ 719:platform/cmsis/device/system_stm32f4xx.c **** #if defined(STM32F427_437xx) || defined(STM32F429_439xx) || defined(STM32F446xx) || defined(STM32F4
+ 720:platform/cmsis/device/system_stm32f4xx.c ****     /* Enable the Over-drive to extend the clock frequency to 180 Mhz */
+ 721:platform/cmsis/device/system_stm32f4xx.c ****     PWR->CR |= PWR_CR_ODEN;
+ 722:platform/cmsis/device/system_stm32f4xx.c ****     while((PWR->CSR & PWR_CSR_ODRDY) == 0)
+ 723:platform/cmsis/device/system_stm32f4xx.c ****     {
+ 724:platform/cmsis/device/system_stm32f4xx.c ****     }
+ 725:platform/cmsis/device/system_stm32f4xx.c ****     PWR->CR |= PWR_CR_ODSWEN;
+ 726:platform/cmsis/device/system_stm32f4xx.c ****     while((PWR->CSR & PWR_CSR_ODSWRDY) == 0)
+ 727:platform/cmsis/device/system_stm32f4xx.c ****     {
+ 728:platform/cmsis/device/system_stm32f4xx.c ****     }      
+ 729:platform/cmsis/device/system_stm32f4xx.c ****     /* Configure Flash prefetch, Instruction cache, Data cache and wait state */
+ 730:platform/cmsis/device/system_stm32f4xx.c ****     FLASH->ACR = FLASH_ACR_PRFTEN | FLASH_ACR_ICEN |FLASH_ACR_DCEN |FLASH_ACR_LATENCY_5WS;
+ 731:platform/cmsis/device/system_stm32f4xx.c **** #endif /* STM32F427_437x || STM32F429_439xx || STM32F446xx || STM32F469_479xx */
+ 732:platform/cmsis/device/system_stm32f4xx.c **** 
+ 733:platform/cmsis/device/system_stm32f4xx.c **** #if defined(STM32F40_41xxx)  || defined(STM32F412xG)  
+ 734:platform/cmsis/device/system_stm32f4xx.c ****     /* Configure Flash prefetch, Instruction cache, Data cache and wait state */
+ 735:platform/cmsis/device/system_stm32f4xx.c ****     FLASH->ACR = FLASH_ACR_PRFTEN | FLASH_ACR_ICEN |FLASH_ACR_DCEN |FLASH_ACR_LATENCY_5WS;
+ 736:platform/cmsis/device/system_stm32f4xx.c **** #endif /* STM32F40_41xxx  || STM32F412xG */
+ 737:platform/cmsis/device/system_stm32f4xx.c **** 
+ 738:platform/cmsis/device/system_stm32f4xx.c **** #if defined(STM32F413_423xx)  
+ 739:platform/cmsis/device/system_stm32f4xx.c ****     /* Configure Flash prefetch, Instruction cache, Data cache and wait state */
+ 740:platform/cmsis/device/system_stm32f4xx.c ****     FLASH->ACR = FLASH_ACR_PRFTEN | FLASH_ACR_ICEN |FLASH_ACR_DCEN |FLASH_ACR_LATENCY_3WS;
+ 741:platform/cmsis/device/system_stm32f4xx.c **** #endif /* STM32F413_423xx */
+ 742:platform/cmsis/device/system_stm32f4xx.c **** 
+ 743:platform/cmsis/device/system_stm32f4xx.c **** #if defined(STM32F401xx)
+ 744:platform/cmsis/device/system_stm32f4xx.c ****     /* Configure Flash prefetch, Instruction cache, Data cache and wait state */
+ 745:platform/cmsis/device/system_stm32f4xx.c ****     FLASH->ACR = FLASH_ACR_PRFTEN | FLASH_ACR_ICEN |FLASH_ACR_DCEN |FLASH_ACR_LATENCY_2WS;
+ 746:platform/cmsis/device/system_stm32f4xx.c **** #endif /* STM32F401xx */
+ 747:platform/cmsis/device/system_stm32f4xx.c **** 
+ 748:platform/cmsis/device/system_stm32f4xx.c ****     /* Select the main PLL as system clock source */
+ 749:platform/cmsis/device/system_stm32f4xx.c ****     RCC->CFGR &= (uint32_t)((uint32_t)~(RCC_CFGR_SW));
+ 750:platform/cmsis/device/system_stm32f4xx.c ****     RCC->CFGR |= RCC_CFGR_SW_PLL;
+ 751:platform/cmsis/device/system_stm32f4xx.c **** 
+ 752:platform/cmsis/device/system_stm32f4xx.c ****     /* Wait till the main PLL is used as system clock source */
+ 753:platform/cmsis/device/system_stm32f4xx.c ****     while ((RCC->CFGR & (uint32_t)RCC_CFGR_SWS ) != RCC_CFGR_SWS_PLL)
+ 754:platform/cmsis/device/system_stm32f4xx.c ****     {
+ 755:platform/cmsis/device/system_stm32f4xx.c ****     }
+ 756:platform/cmsis/device/system_stm32f4xx.c ****   }
+ 757:platform/cmsis/device/system_stm32f4xx.c ****   else
+ 758:platform/cmsis/device/system_stm32f4xx.c ****   { /* If HSE fails to start-up, the application will have wrong clock
+ 759:platform/cmsis/device/system_stm32f4xx.c ****          configuration. User can add here some code to deal with this error */
+ 760:platform/cmsis/device/system_stm32f4xx.c ****   }
+ 761:platform/cmsis/device/system_stm32f4xx.c **** #elif defined(STM32F410xx) || defined(STM32F411xE)
+ 762:platform/cmsis/device/system_stm32f4xx.c **** #if defined(USE_HSE_BYPASS) 
+ 763:platform/cmsis/device/system_stm32f4xx.c **** /******************************************************************************/
+ 764:platform/cmsis/device/system_stm32f4xx.c **** /*            PLL (clocked by HSE) used as System clock source                */
+ARM GAS  /tmp/cclhuhzK.s 			page 16
+
+
+ 765:platform/cmsis/device/system_stm32f4xx.c **** /******************************************************************************/
+ 766:platform/cmsis/device/system_stm32f4xx.c ****   __IO uint32_t StartUpCounter = 0, HSEStatus = 0;
+ 767:platform/cmsis/device/system_stm32f4xx.c ****   
+ 768:platform/cmsis/device/system_stm32f4xx.c ****   /* Enable HSE and HSE BYPASS */
+ 769:platform/cmsis/device/system_stm32f4xx.c ****   RCC->CR |= ((uint32_t)RCC_CR_HSEON | RCC_CR_HSEBYP);
+ 770:platform/cmsis/device/system_stm32f4xx.c ****  
+ 771:platform/cmsis/device/system_stm32f4xx.c ****   /* Wait till HSE is ready and if Time out is reached exit */
+ 772:platform/cmsis/device/system_stm32f4xx.c ****   do
+ 773:platform/cmsis/device/system_stm32f4xx.c ****   {
+ 774:platform/cmsis/device/system_stm32f4xx.c ****     HSEStatus = RCC->CR & RCC_CR_HSERDY;
+ 775:platform/cmsis/device/system_stm32f4xx.c ****     StartUpCounter++;
+ 776:platform/cmsis/device/system_stm32f4xx.c ****   } while((HSEStatus == 0) && (StartUpCounter != HSE_STARTUP_TIMEOUT));
+ 777:platform/cmsis/device/system_stm32f4xx.c **** 
+ 778:platform/cmsis/device/system_stm32f4xx.c ****   if ((RCC->CR & RCC_CR_HSERDY) != RESET)
+ 779:platform/cmsis/device/system_stm32f4xx.c ****   {
+ 780:platform/cmsis/device/system_stm32f4xx.c ****     HSEStatus = (uint32_t)0x01;
+ 781:platform/cmsis/device/system_stm32f4xx.c ****   }
+ 782:platform/cmsis/device/system_stm32f4xx.c ****   else
+ 783:platform/cmsis/device/system_stm32f4xx.c ****   {
+ 784:platform/cmsis/device/system_stm32f4xx.c ****     HSEStatus = (uint32_t)0x00;
+ 785:platform/cmsis/device/system_stm32f4xx.c ****   }
+ 786:platform/cmsis/device/system_stm32f4xx.c **** 
+ 787:platform/cmsis/device/system_stm32f4xx.c ****   if (HSEStatus == (uint32_t)0x01)
+ 788:platform/cmsis/device/system_stm32f4xx.c ****   {
+ 789:platform/cmsis/device/system_stm32f4xx.c ****     /* Select regulator voltage output Scale 1 mode */
+ 790:platform/cmsis/device/system_stm32f4xx.c ****     RCC->APB1ENR |= RCC_APB1ENR_PWREN;
+ 791:platform/cmsis/device/system_stm32f4xx.c ****     PWR->CR |= PWR_CR_VOS;
+ 792:platform/cmsis/device/system_stm32f4xx.c **** 
+ 793:platform/cmsis/device/system_stm32f4xx.c ****     /* HCLK = SYSCLK / 1*/
+ 794:platform/cmsis/device/system_stm32f4xx.c ****     RCC->CFGR |= RCC_CFGR_HPRE_DIV1;
+ 795:platform/cmsis/device/system_stm32f4xx.c **** 
+ 796:platform/cmsis/device/system_stm32f4xx.c ****     /* PCLK2 = HCLK / 2*/
+ 797:platform/cmsis/device/system_stm32f4xx.c ****     RCC->CFGR |= RCC_CFGR_PPRE2_DIV1;
+ 798:platform/cmsis/device/system_stm32f4xx.c ****     
+ 799:platform/cmsis/device/system_stm32f4xx.c ****     /* PCLK1 = HCLK / 4*/
+ 800:platform/cmsis/device/system_stm32f4xx.c ****     RCC->CFGR |= RCC_CFGR_PPRE1_DIV2;
+ 801:platform/cmsis/device/system_stm32f4xx.c **** 
+ 802:platform/cmsis/device/system_stm32f4xx.c ****     /* Configure the main PLL */
+ 803:platform/cmsis/device/system_stm32f4xx.c ****     RCC->PLLCFGR = PLL_M | (PLL_N << 6) | (((PLL_P >> 1) -1) << 16) |
+ 804:platform/cmsis/device/system_stm32f4xx.c ****                    (RCC_PLLCFGR_PLLSRC_HSE) | (PLL_Q << 24);
+ 805:platform/cmsis/device/system_stm32f4xx.c ****     
+ 806:platform/cmsis/device/system_stm32f4xx.c ****     /* Enable the main PLL */
+ 807:platform/cmsis/device/system_stm32f4xx.c ****     RCC->CR |= RCC_CR_PLLON;
+ 808:platform/cmsis/device/system_stm32f4xx.c **** 
+ 809:platform/cmsis/device/system_stm32f4xx.c ****     /* Wait till the main PLL is ready */
+ 810:platform/cmsis/device/system_stm32f4xx.c ****     while((RCC->CR & RCC_CR_PLLRDY) == 0)
+ 811:platform/cmsis/device/system_stm32f4xx.c ****     {
+ 812:platform/cmsis/device/system_stm32f4xx.c ****     }
+ 813:platform/cmsis/device/system_stm32f4xx.c **** 
+ 814:platform/cmsis/device/system_stm32f4xx.c ****     /* Configure Flash prefetch, Instruction cache, Data cache and wait state */
+ 815:platform/cmsis/device/system_stm32f4xx.c ****     FLASH->ACR = FLASH_ACR_PRFTEN | FLASH_ACR_ICEN |FLASH_ACR_DCEN |FLASH_ACR_LATENCY_3WS;
+ 816:platform/cmsis/device/system_stm32f4xx.c **** 
+ 817:platform/cmsis/device/system_stm32f4xx.c ****     /* Select the main PLL as system clock source */
+ 818:platform/cmsis/device/system_stm32f4xx.c ****     RCC->CFGR &= (uint32_t)((uint32_t)~(RCC_CFGR_SW));
+ 819:platform/cmsis/device/system_stm32f4xx.c ****     RCC->CFGR |= RCC_CFGR_SW_PLL;
+ 820:platform/cmsis/device/system_stm32f4xx.c **** 
+ 821:platform/cmsis/device/system_stm32f4xx.c ****     /* Wait till the main PLL is used as system clock source */
+ARM GAS  /tmp/cclhuhzK.s 			page 17
+
+
+ 822:platform/cmsis/device/system_stm32f4xx.c ****     while ((RCC->CFGR & (uint32_t)RCC_CFGR_SWS ) != RCC_CFGR_SWS_PLL);
+ 823:platform/cmsis/device/system_stm32f4xx.c ****     {
+ 824:platform/cmsis/device/system_stm32f4xx.c ****     }
+ 825:platform/cmsis/device/system_stm32f4xx.c ****   }
+ 826:platform/cmsis/device/system_stm32f4xx.c ****   else
+ 827:platform/cmsis/device/system_stm32f4xx.c ****   { /* If HSE fails to start-up, the application will have wrong clock
+ 828:platform/cmsis/device/system_stm32f4xx.c ****          configuration. User can add here some code to deal with this error */
+ 829:platform/cmsis/device/system_stm32f4xx.c ****   }
+ 830:platform/cmsis/device/system_stm32f4xx.c **** #else /* HSI will be used as PLL clock source */
+ 831:platform/cmsis/device/system_stm32f4xx.c ****   /* Select regulator voltage output Scale 1 mode */
+ 832:platform/cmsis/device/system_stm32f4xx.c ****   RCC->APB1ENR |= RCC_APB1ENR_PWREN;
+ 833:platform/cmsis/device/system_stm32f4xx.c ****   PWR->CR |= PWR_CR_VOS;
+ 834:platform/cmsis/device/system_stm32f4xx.c ****   
+ 835:platform/cmsis/device/system_stm32f4xx.c ****   /* HCLK = SYSCLK / 1*/
+ 836:platform/cmsis/device/system_stm32f4xx.c ****   RCC->CFGR |= RCC_CFGR_HPRE_DIV1;
+ 837:platform/cmsis/device/system_stm32f4xx.c ****   
+ 838:platform/cmsis/device/system_stm32f4xx.c ****   /* PCLK2 = HCLK / 2*/
+ 839:platform/cmsis/device/system_stm32f4xx.c ****   RCC->CFGR |= RCC_CFGR_PPRE2_DIV1;
+ 840:platform/cmsis/device/system_stm32f4xx.c ****   
+ 841:platform/cmsis/device/system_stm32f4xx.c ****   /* PCLK1 = HCLK / 4*/
+ 842:platform/cmsis/device/system_stm32f4xx.c ****   RCC->CFGR |= RCC_CFGR_PPRE1_DIV2;
+ 843:platform/cmsis/device/system_stm32f4xx.c ****   
+ 844:platform/cmsis/device/system_stm32f4xx.c ****   /* Configure the main PLL */
+ 845:platform/cmsis/device/system_stm32f4xx.c ****   RCC->PLLCFGR = PLL_M | (PLL_N << 6) | (((PLL_P >> 1) -1) << 16) | (PLL_Q << 24); 
+ 846:platform/cmsis/device/system_stm32f4xx.c ****   
+ 847:platform/cmsis/device/system_stm32f4xx.c ****   /* Enable the main PLL */
+ 848:platform/cmsis/device/system_stm32f4xx.c ****   RCC->CR |= RCC_CR_PLLON;
+ 849:platform/cmsis/device/system_stm32f4xx.c ****   
+ 850:platform/cmsis/device/system_stm32f4xx.c ****   /* Wait till the main PLL is ready */
+ 851:platform/cmsis/device/system_stm32f4xx.c ****   while((RCC->CR & RCC_CR_PLLRDY) == 0)
+ 852:platform/cmsis/device/system_stm32f4xx.c ****   {
+ 853:platform/cmsis/device/system_stm32f4xx.c ****   }
+ 854:platform/cmsis/device/system_stm32f4xx.c ****   
+ 855:platform/cmsis/device/system_stm32f4xx.c ****   /* Configure Flash prefetch, Instruction cache, Data cache and wait state */
+ 856:platform/cmsis/device/system_stm32f4xx.c ****   FLASH->ACR = FLASH_ACR_PRFTEN | FLASH_ACR_ICEN |FLASH_ACR_DCEN |FLASH_ACR_LATENCY_3WS;
+ 857:platform/cmsis/device/system_stm32f4xx.c ****   
+ 858:platform/cmsis/device/system_stm32f4xx.c ****   /* Select the main PLL as system clock source */
+ 859:platform/cmsis/device/system_stm32f4xx.c ****   RCC->CFGR &= (uint32_t)((uint32_t)~(RCC_CFGR_SW));
+ 860:platform/cmsis/device/system_stm32f4xx.c ****   RCC->CFGR |= RCC_CFGR_SW_PLL;
+ 861:platform/cmsis/device/system_stm32f4xx.c ****   
+ 862:platform/cmsis/device/system_stm32f4xx.c ****   /* Wait till the main PLL is used as system clock source */
+ 863:platform/cmsis/device/system_stm32f4xx.c ****   while ((RCC->CFGR & (uint32_t)RCC_CFGR_SWS ) != RCC_CFGR_SWS_PLL);
+ 864:platform/cmsis/device/system_stm32f4xx.c ****   {
+ 865:platform/cmsis/device/system_stm32f4xx.c ****   }
+ 866:platform/cmsis/device/system_stm32f4xx.c **** #endif /* USE_HSE_BYPASS */  
+ 867:platform/cmsis/device/system_stm32f4xx.c **** #endif /* STM32F40_41xxx || STM32F427_437xx || STM32F429_439xx || STM32F401xx || STM32F469_479xx */
+ 868:platform/cmsis/device/system_stm32f4xx.c **** }
+  93              		.loc 1 868 1 view .LVU26
+  94 0042 02B0     		add	sp, sp, #8
+  95              	.LCFI1:
+  96              		.cfi_remember_state
+  97              		.cfi_def_cfa_offset 0
+  98              		@ sp needed
+  99 0044 7047     		bx	lr
+ 100              	.L4:
+ 101              	.LCFI2:
+ 102              		.cfi_restore_state
+ARM GAS  /tmp/cclhuhzK.s 			page 18
+
+
+ 671:platform/cmsis/device/system_stm32f4xx.c ****   }
+ 103              		.loc 1 671 5 is_stmt 1 view .LVU27
+ 671:platform/cmsis/device/system_stm32f4xx.c ****   }
+ 104              		.loc 1 671 15 is_stmt 0 view .LVU28
+ 105 0046 0023     		movs	r3, #0
+ 106 0048 0093     		str	r3, [sp]
+ 107 004a F7E7     		b	.L5
+ 108              	.L10:
+ 677:platform/cmsis/device/system_stm32f4xx.c ****     PWR->CR |= PWR_CR_VOS;
+ 109              		.loc 1 677 5 is_stmt 1 view .LVU29
+ 677:platform/cmsis/device/system_stm32f4xx.c ****     PWR->CR |= PWR_CR_VOS;
+ 110              		.loc 1 677 18 is_stmt 0 view .LVU30
+ 111 004c 194B     		ldr	r3, .L11
+ 112 004e 1A6C     		ldr	r2, [r3, #64]
+ 113 0050 42F08052 		orr	r2, r2, #268435456
+ 114 0054 1A64     		str	r2, [r3, #64]
+ 678:platform/cmsis/device/system_stm32f4xx.c **** 
+ 115              		.loc 1 678 5 is_stmt 1 view .LVU31
+ 678:platform/cmsis/device/system_stm32f4xx.c **** 
+ 116              		.loc 1 678 13 is_stmt 0 view .LVU32
+ 117 0056 1849     		ldr	r1, .L11+4
+ 118 0058 0A68     		ldr	r2, [r1]
+ 119 005a 42F44042 		orr	r2, r2, #49152
+ 120 005e 0A60     		str	r2, [r1]
+ 681:platform/cmsis/device/system_stm32f4xx.c **** 
+ 121              		.loc 1 681 5 is_stmt 1 view .LVU33
+ 681:platform/cmsis/device/system_stm32f4xx.c **** 
+ 122              		.loc 1 681 15 is_stmt 0 view .LVU34
+ 123 0060 9A68     		ldr	r2, [r3, #8]
+ 124 0062 9A60     		str	r2, [r3, #8]
+ 685:platform/cmsis/device/system_stm32f4xx.c ****     
+ 125              		.loc 1 685 5 is_stmt 1 view .LVU35
+ 685:platform/cmsis/device/system_stm32f4xx.c ****     
+ 126              		.loc 1 685 15 is_stmt 0 view .LVU36
+ 127 0064 9A68     		ldr	r2, [r3, #8]
+ 128 0066 42F40042 		orr	r2, r2, #32768
+ 129 006a 9A60     		str	r2, [r3, #8]
+ 688:platform/cmsis/device/system_stm32f4xx.c **** #endif /* STM32F40_41xxx || STM32F427_437x || STM32F429_439xx  || STM32F412xG || STM32F446xx || STM
+ 130              		.loc 1 688 5 is_stmt 1 view .LVU37
+ 688:platform/cmsis/device/system_stm32f4xx.c **** #endif /* STM32F40_41xxx || STM32F427_437x || STM32F429_439xx  || STM32F412xG || STM32F446xx || STM
+ 131              		.loc 1 688 15 is_stmt 0 view .LVU38
+ 132 006c 9A68     		ldr	r2, [r3, #8]
+ 133 006e 42F4A052 		orr	r2, r2, #5120
+ 134 0072 9A60     		str	r2, [r3, #8]
+ 701:platform/cmsis/device/system_stm32f4xx.c ****                    (RCC_PLLCFGR_PLLSRC_HSE) | (PLL_Q << 24);
+ 135              		.loc 1 701 5 is_stmt 1 view .LVU39
+ 701:platform/cmsis/device/system_stm32f4xx.c ****                    (RCC_PLLCFGR_PLLSRC_HSE) | (PLL_Q << 24);
+ 136              		.loc 1 701 18 is_stmt 0 view .LVU40
+ 137 0074 114A     		ldr	r2, .L11+8
+ 138 0076 5A60     		str	r2, [r3, #4]
+ 712:platform/cmsis/device/system_stm32f4xx.c **** 
+ 139              		.loc 1 712 5 is_stmt 1 view .LVU41
+ 712:platform/cmsis/device/system_stm32f4xx.c **** 
+ 140              		.loc 1 712 13 is_stmt 0 view .LVU42
+ 141 0078 1A68     		ldr	r2, [r3]
+ 142 007a 42F08072 		orr	r2, r2, #16777216
+ 143 007e 1A60     		str	r2, [r3]
+ARM GAS  /tmp/cclhuhzK.s 			page 19
+
+
+ 715:platform/cmsis/device/system_stm32f4xx.c ****     {
+ 144              		.loc 1 715 5 is_stmt 1 view .LVU43
+ 145              	.L7:
+ 717:platform/cmsis/device/system_stm32f4xx.c ****    
+ 146              		.loc 1 717 5 discriminator 1 view .LVU44
+ 715:platform/cmsis/device/system_stm32f4xx.c ****     {
+ 147              		.loc 1 715 10 discriminator 1 view .LVU45
+ 715:platform/cmsis/device/system_stm32f4xx.c ****     {
+ 148              		.loc 1 715 15 is_stmt 0 discriminator 1 view .LVU46
+ 149 0080 0C4B     		ldr	r3, .L11
+ 150 0082 1B68     		ldr	r3, [r3]
+ 715:platform/cmsis/device/system_stm32f4xx.c ****     {
+ 151              		.loc 1 715 10 discriminator 1 view .LVU47
+ 152 0084 13F0007F 		tst	r3, #33554432
+ 153 0088 FAD0     		beq	.L7
+ 735:platform/cmsis/device/system_stm32f4xx.c **** #endif /* STM32F40_41xxx  || STM32F412xG */
+ 154              		.loc 1 735 5 is_stmt 1 view .LVU48
+ 735:platform/cmsis/device/system_stm32f4xx.c **** #endif /* STM32F40_41xxx  || STM32F412xG */
+ 155              		.loc 1 735 16 is_stmt 0 view .LVU49
+ 156 008a 0D4B     		ldr	r3, .L11+12
+ 157 008c 40F20572 		movw	r2, #1797
+ 158 0090 1A60     		str	r2, [r3]
+ 749:platform/cmsis/device/system_stm32f4xx.c ****     RCC->CFGR |= RCC_CFGR_SW_PLL;
+ 159              		.loc 1 749 5 is_stmt 1 view .LVU50
+ 749:platform/cmsis/device/system_stm32f4xx.c ****     RCC->CFGR |= RCC_CFGR_SW_PLL;
+ 160              		.loc 1 749 15 is_stmt 0 view .LVU51
+ 161 0092 A3F58063 		sub	r3, r3, #1024
+ 162 0096 9A68     		ldr	r2, [r3, #8]
+ 163 0098 22F00302 		bic	r2, r2, #3
+ 164 009c 9A60     		str	r2, [r3, #8]
+ 750:platform/cmsis/device/system_stm32f4xx.c **** 
+ 165              		.loc 1 750 5 is_stmt 1 view .LVU52
+ 750:platform/cmsis/device/system_stm32f4xx.c **** 
+ 166              		.loc 1 750 15 is_stmt 0 view .LVU53
+ 167 009e 9A68     		ldr	r2, [r3, #8]
+ 168 00a0 42F00202 		orr	r2, r2, #2
+ 169 00a4 9A60     		str	r2, [r3, #8]
+ 753:platform/cmsis/device/system_stm32f4xx.c ****     {
+ 170              		.loc 1 753 5 is_stmt 1 view .LVU54
+ 171              	.L8:
+ 755:platform/cmsis/device/system_stm32f4xx.c ****   }
+ 172              		.loc 1 755 5 discriminator 1 view .LVU55
+ 753:platform/cmsis/device/system_stm32f4xx.c ****     {
+ 173              		.loc 1 753 11 discriminator 1 view .LVU56
+ 753:platform/cmsis/device/system_stm32f4xx.c ****     {
+ 174              		.loc 1 753 16 is_stmt 0 discriminator 1 view .LVU57
+ 175 00a6 034B     		ldr	r3, .L11
+ 176 00a8 9B68     		ldr	r3, [r3, #8]
+ 753:platform/cmsis/device/system_stm32f4xx.c ****     {
+ 177              		.loc 1 753 23 discriminator 1 view .LVU58
+ 178 00aa 03F00C03 		and	r3, r3, #12
+ 753:platform/cmsis/device/system_stm32f4xx.c ****     {
+ 179              		.loc 1 753 11 discriminator 1 view .LVU59
+ 180 00ae 082B     		cmp	r3, #8
+ 181 00b0 F9D1     		bne	.L8
+ 182 00b2 C6E7     		b	.L1
+ 183              	.L12:
+ARM GAS  /tmp/cclhuhzK.s 			page 20
+
+
+ 184              		.align	2
+ 185              	.L11:
+ 186 00b4 00380240 		.word	1073887232
+ 187 00b8 00700040 		.word	1073770496
+ 188 00bc 19544007 		.word	121656345
+ 189 00c0 003C0240 		.word	1073888256
+ 190              		.cfi_endproc
+ 191              	.LFE125:
+ 193              		.section	.text.SystemInit,"ax",%progbits
+ 194              		.align	1
+ 195              		.global	SystemInit
+ 196              		.syntax unified
+ 197              		.thumb
+ 198              		.thumb_func
+ 200              	SystemInit:
+ 201              	.LFB123:
+ 477:platform/cmsis/device/system_stm32f4xx.c ****   /* FPU settings ------------------------------------------------------------*/
+ 202              		.loc 1 477 1 is_stmt 1 view -0
+ 203              		.cfi_startproc
+ 204              		@ args = 0, pretend = 0, frame = 0
+ 205              		@ frame_needed = 0, uses_anonymous_args = 0
+ 206 0000 10B5     		push	{r4, lr}
+ 207              	.LCFI3:
+ 208              		.cfi_def_cfa_offset 8
+ 209              		.cfi_offset 4, -8
+ 210              		.cfi_offset 14, -4
+ 480:platform/cmsis/device/system_stm32f4xx.c ****   #endif
+ 211              		.loc 1 480 5 view .LVU61
+ 480:platform/cmsis/device/system_stm32f4xx.c ****   #endif
+ 212              		.loc 1 480 16 is_stmt 0 view .LVU62
+ 213 0002 104C     		ldr	r4, .L15
+ 214 0004 D4F88830 		ldr	r3, [r4, #136]
+ 215 0008 43F47003 		orr	r3, r3, #15728640
+ 216 000c C4F88830 		str	r3, [r4, #136]
+ 484:platform/cmsis/device/system_stm32f4xx.c **** 
+ 217              		.loc 1 484 3 is_stmt 1 view .LVU63
+ 484:platform/cmsis/device/system_stm32f4xx.c **** 
+ 218              		.loc 1 484 11 is_stmt 0 view .LVU64
+ 219 0010 0D4B     		ldr	r3, .L15+4
+ 220 0012 1A68     		ldr	r2, [r3]
+ 221 0014 42F00102 		orr	r2, r2, #1
+ 222 0018 1A60     		str	r2, [r3]
+ 487:platform/cmsis/device/system_stm32f4xx.c **** 
+ 223              		.loc 1 487 3 is_stmt 1 view .LVU65
+ 487:platform/cmsis/device/system_stm32f4xx.c **** 
+ 224              		.loc 1 487 13 is_stmt 0 view .LVU66
+ 225 001a 0021     		movs	r1, #0
+ 226 001c 9960     		str	r1, [r3, #8]
+ 490:platform/cmsis/device/system_stm32f4xx.c **** 
+ 227              		.loc 1 490 3 is_stmt 1 view .LVU67
+ 490:platform/cmsis/device/system_stm32f4xx.c **** 
+ 228              		.loc 1 490 11 is_stmt 0 view .LVU68
+ 229 001e 1A68     		ldr	r2, [r3]
+ 230 0020 22F08472 		bic	r2, r2, #17301504
+ 231 0024 22F48032 		bic	r2, r2, #65536
+ 232 0028 1A60     		str	r2, [r3]
+ 493:platform/cmsis/device/system_stm32f4xx.c **** 
+ARM GAS  /tmp/cclhuhzK.s 			page 21
+
+
+ 233              		.loc 1 493 3 is_stmt 1 view .LVU69
+ 493:platform/cmsis/device/system_stm32f4xx.c **** 
+ 234              		.loc 1 493 16 is_stmt 0 view .LVU70
+ 235 002a 084A     		ldr	r2, .L15+8
+ 236 002c 5A60     		str	r2, [r3, #4]
+ 496:platform/cmsis/device/system_stm32f4xx.c **** 
+ 237              		.loc 1 496 3 is_stmt 1 view .LVU71
+ 496:platform/cmsis/device/system_stm32f4xx.c **** 
+ 238              		.loc 1 496 11 is_stmt 0 view .LVU72
+ 239 002e 1A68     		ldr	r2, [r3]
+ 240 0030 22F48022 		bic	r2, r2, #262144
+ 241 0034 1A60     		str	r2, [r3]
+ 499:platform/cmsis/device/system_stm32f4xx.c **** 
+ 242              		.loc 1 499 3 is_stmt 1 view .LVU73
+ 499:platform/cmsis/device/system_stm32f4xx.c **** 
+ 243              		.loc 1 499 12 is_stmt 0 view .LVU74
+ 244 0036 D960     		str	r1, [r3, #12]
+ 507:platform/cmsis/device/system_stm32f4xx.c **** 
+ 245              		.loc 1 507 3 is_stmt 1 view .LVU75
+ 246 0038 FFF7FEFF 		bl	SetSysClock
+ 247              	.LVL0:
+ 513:platform/cmsis/device/system_stm32f4xx.c **** #endif
+ 248              		.loc 1 513 3 view .LVU76
+ 513:platform/cmsis/device/system_stm32f4xx.c **** #endif
+ 249              		.loc 1 513 13 is_stmt 0 view .LVU77
+ 250 003c 4FF00063 		mov	r3, #134217728
+ 251 0040 A360     		str	r3, [r4, #8]
+ 515:platform/cmsis/device/system_stm32f4xx.c **** 
+ 252              		.loc 1 515 1 view .LVU78
+ 253 0042 10BD     		pop	{r4, pc}
+ 254              	.L16:
+ 255              		.align	2
+ 256              	.L15:
+ 257 0044 00ED00E0 		.word	-536810240
+ 258 0048 00380240 		.word	1073887232
+ 259 004c 10300024 		.word	603992080
+ 260              		.cfi_endproc
+ 261              	.LFE123:
+ 263              		.section	.text.SystemCoreClockUpdate,"ax",%progbits
+ 264              		.align	1
+ 265              		.global	SystemCoreClockUpdate
+ 266              		.syntax unified
+ 267              		.thumb
+ 268              		.thumb_func
+ 270              	SystemCoreClockUpdate:
+ 271              	.LFB124:
+ 554:platform/cmsis/device/system_stm32f4xx.c ****   uint32_t tmp = 0, pllvco = 0, pllp = 2, pllsource = 0, pllm = 2;
+ 272              		.loc 1 554 1 is_stmt 1 view -0
+ 273              		.cfi_startproc
+ 274              		@ args = 0, pretend = 0, frame = 0
+ 275              		@ frame_needed = 0, uses_anonymous_args = 0
+ 276              		@ link register save eliminated.
+ 555:platform/cmsis/device/system_stm32f4xx.c **** #if defined(STM32F412xG) || defined(STM32F413_423xx) || defined(STM32F446xx)  
+ 277              		.loc 1 555 3 view .LVU80
+ 278              	.LVL1:
+ 560:platform/cmsis/device/system_stm32f4xx.c **** 
+ 279              		.loc 1 560 3 view .LVU81
+ARM GAS  /tmp/cclhuhzK.s 			page 22
+
+
+ 560:platform/cmsis/device/system_stm32f4xx.c **** 
+ 280              		.loc 1 560 12 is_stmt 0 view .LVU82
+ 281 0000 224B     		ldr	r3, .L25
+ 282 0002 9B68     		ldr	r3, [r3, #8]
+ 560:platform/cmsis/device/system_stm32f4xx.c **** 
+ 283              		.loc 1 560 7 view .LVU83
+ 284 0004 03F00C03 		and	r3, r3, #12
+ 285              	.LVL2:
+ 562:platform/cmsis/device/system_stm32f4xx.c ****   {
+ 286              		.loc 1 562 3 is_stmt 1 view .LVU84
+ 287 0008 042B     		cmp	r3, #4
+ 288 000a 15D0     		beq	.L18
+ 289 000c 082B     		cmp	r3, #8
+ 290 000e 17D0     		beq	.L19
+ 291 0010 1BB1     		cbz	r3, .L24
+ 629:platform/cmsis/device/system_stm32f4xx.c ****       break;
+ 292              		.loc 1 629 7 view .LVU85
+ 629:platform/cmsis/device/system_stm32f4xx.c ****       break;
+ 293              		.loc 1 629 23 is_stmt 0 view .LVU86
+ 294 0012 1F4B     		ldr	r3, .L25+4
+ 295              	.LVL3:
+ 629:platform/cmsis/device/system_stm32f4xx.c ****       break;
+ 296              		.loc 1 629 23 view .LVU87
+ 297 0014 1F4A     		ldr	r2, .L25+8
+ 298 0016 1A60     		str	r2, [r3]
+ 630:platform/cmsis/device/system_stm32f4xx.c ****   }
+ 299              		.loc 1 630 7 is_stmt 1 view .LVU88
+ 300 0018 02E0     		b	.L21
+ 301              	.LVL4:
+ 302              	.L24:
+ 565:platform/cmsis/device/system_stm32f4xx.c ****       break;
+ 303              		.loc 1 565 7 view .LVU89
+ 565:platform/cmsis/device/system_stm32f4xx.c ****       break;
+ 304              		.loc 1 565 23 is_stmt 0 view .LVU90
+ 305 001a 1D4B     		ldr	r3, .L25+4
+ 306              	.LVL5:
+ 565:platform/cmsis/device/system_stm32f4xx.c ****       break;
+ 307              		.loc 1 565 23 view .LVU91
+ 308 001c 1D4A     		ldr	r2, .L25+8
+ 309 001e 1A60     		str	r2, [r3]
+ 566:platform/cmsis/device/system_stm32f4xx.c ****     case 0x04:  /* HSE used as system clock source */
+ 310              		.loc 1 566 7 is_stmt 1 view .LVU92
+ 311              	.LVL6:
+ 312              	.L21:
+ 634:platform/cmsis/device/system_stm32f4xx.c ****   /* HCLK frequency */
+ 313              		.loc 1 634 3 view .LVU93
+ 634:platform/cmsis/device/system_stm32f4xx.c ****   /* HCLK frequency */
+ 314              		.loc 1 634 28 is_stmt 0 view .LVU94
+ 315 0020 1A4B     		ldr	r3, .L25
+ 316 0022 9B68     		ldr	r3, [r3, #8]
+ 634:platform/cmsis/device/system_stm32f4xx.c ****   /* HCLK frequency */
+ 317              		.loc 1 634 52 view .LVU95
+ 318 0024 C3F30313 		ubfx	r3, r3, #4, #4
+ 634:platform/cmsis/device/system_stm32f4xx.c ****   /* HCLK frequency */
+ 319              		.loc 1 634 22 view .LVU96
+ 320 0028 1B4A     		ldr	r2, .L25+12
+ 321 002a D35C     		ldrb	r3, [r2, r3]	@ zero_extendqisi2
+ARM GAS  /tmp/cclhuhzK.s 			page 23
+
+
+ 322 002c DAB2     		uxtb	r2, r3
+ 323              	.LVL7:
+ 636:platform/cmsis/device/system_stm32f4xx.c **** }
+ 324              		.loc 1 636 3 is_stmt 1 view .LVU97
+ 636:platform/cmsis/device/system_stm32f4xx.c **** }
+ 325              		.loc 1 636 19 is_stmt 0 view .LVU98
+ 326 002e 1849     		ldr	r1, .L25+4
+ 327 0030 0B68     		ldr	r3, [r1]
+ 328 0032 D340     		lsrs	r3, r3, r2
+ 329 0034 0B60     		str	r3, [r1]
+ 637:platform/cmsis/device/system_stm32f4xx.c **** 
+ 330              		.loc 1 637 1 view .LVU99
+ 331 0036 7047     		bx	lr
+ 332              	.LVL8:
+ 333              	.L18:
+ 568:platform/cmsis/device/system_stm32f4xx.c ****       break;
+ 334              		.loc 1 568 7 is_stmt 1 view .LVU100
+ 568:platform/cmsis/device/system_stm32f4xx.c ****       break;
+ 335              		.loc 1 568 23 is_stmt 0 view .LVU101
+ 336 0038 154B     		ldr	r3, .L25+4
+ 337              	.LVL9:
+ 568:platform/cmsis/device/system_stm32f4xx.c ****       break;
+ 338              		.loc 1 568 23 view .LVU102
+ 339 003a 184A     		ldr	r2, .L25+16
+ 340 003c 1A60     		str	r2, [r3]
+ 569:platform/cmsis/device/system_stm32f4xx.c ****     case 0x08:  /* PLL P used as system clock source */
+ 341              		.loc 1 569 7 is_stmt 1 view .LVU103
+ 342 003e EFE7     		b	.L21
+ 343              	.LVL10:
+ 344              	.L19:
+ 574:platform/cmsis/device/system_stm32f4xx.c ****       pllm = RCC->PLLCFGR & RCC_PLLCFGR_PLLM;
+ 345              		.loc 1 574 7 view .LVU104
+ 574:platform/cmsis/device/system_stm32f4xx.c ****       pllm = RCC->PLLCFGR & RCC_PLLCFGR_PLLM;
+ 346              		.loc 1 574 23 is_stmt 0 view .LVU105
+ 347 0040 124B     		ldr	r3, .L25
+ 348              	.LVL11:
+ 574:platform/cmsis/device/system_stm32f4xx.c ****       pllm = RCC->PLLCFGR & RCC_PLLCFGR_PLLM;
+ 349              		.loc 1 574 23 view .LVU106
+ 350 0042 5968     		ldr	r1, [r3, #4]
+ 351              	.LVL12:
+ 575:platform/cmsis/device/system_stm32f4xx.c ****       
+ 352              		.loc 1 575 7 is_stmt 1 view .LVU107
+ 575:platform/cmsis/device/system_stm32f4xx.c ****       
+ 353              		.loc 1 575 17 is_stmt 0 view .LVU108
+ 354 0044 5A68     		ldr	r2, [r3, #4]
+ 575:platform/cmsis/device/system_stm32f4xx.c ****       
+ 355              		.loc 1 575 12 view .LVU109
+ 356 0046 02F03F02 		and	r2, r2, #63
+ 357              	.LVL13:
+ 578:platform/cmsis/device/system_stm32f4xx.c ****       {
+ 358              		.loc 1 578 7 is_stmt 1 view .LVU110
+ 578:platform/cmsis/device/system_stm32f4xx.c ****       {
+ 359              		.loc 1 578 10 is_stmt 0 view .LVU111
+ 360 004a 11F4800F 		tst	r1, #4194304
+ 361 004e 13D0     		beq	.L22
+ 581:platform/cmsis/device/system_stm32f4xx.c ****       }
+ 362              		.loc 1 581 9 is_stmt 1 view .LVU112
+ARM GAS  /tmp/cclhuhzK.s 			page 24
+
+
+ 581:platform/cmsis/device/system_stm32f4xx.c ****       }
+ 363              		.loc 1 581 29 is_stmt 0 view .LVU113
+ 364 0050 124B     		ldr	r3, .L25+16
+ 365 0052 B3FBF2F3 		udiv	r3, r3, r2
+ 581:platform/cmsis/device/system_stm32f4xx.c ****       }
+ 366              		.loc 1 581 44 view .LVU114
+ 367 0056 0D4A     		ldr	r2, .L25
+ 368              	.LVL14:
+ 581:platform/cmsis/device/system_stm32f4xx.c ****       }
+ 369              		.loc 1 581 44 view .LVU115
+ 370 0058 5268     		ldr	r2, [r2, #4]
+ 581:platform/cmsis/device/system_stm32f4xx.c ****       }
+ 371              		.loc 1 581 74 view .LVU116
+ 372 005a C2F38812 		ubfx	r2, r2, #6, #9
+ 581:platform/cmsis/device/system_stm32f4xx.c ****       }
+ 373              		.loc 1 581 16 view .LVU117
+ 374 005e 02FB03F3 		mul	r3, r2, r3
+ 375              	.LVL15:
+ 376              	.L23:
+ 603:platform/cmsis/device/system_stm32f4xx.c ****       SystemCoreClock = pllvco/pllp;      
+ 377              		.loc 1 603 7 is_stmt 1 view .LVU118
+ 603:platform/cmsis/device/system_stm32f4xx.c ****       SystemCoreClock = pllvco/pllp;      
+ 378              		.loc 1 603 20 is_stmt 0 view .LVU119
+ 379 0062 0A4A     		ldr	r2, .L25
+ 380 0064 5268     		ldr	r2, [r2, #4]
+ 603:platform/cmsis/device/system_stm32f4xx.c ****       SystemCoreClock = pllvco/pllp;      
+ 381              		.loc 1 603 50 view .LVU120
+ 382 0066 C2F30142 		ubfx	r2, r2, #16, #2
+ 603:platform/cmsis/device/system_stm32f4xx.c ****       SystemCoreClock = pllvco/pllp;      
+ 383              		.loc 1 603 56 view .LVU121
+ 384 006a 0132     		adds	r2, r2, #1
+ 603:platform/cmsis/device/system_stm32f4xx.c ****       SystemCoreClock = pllvco/pllp;      
+ 385              		.loc 1 603 12 view .LVU122
+ 386 006c 5200     		lsls	r2, r2, #1
+ 387              	.LVL16:
+ 604:platform/cmsis/device/system_stm32f4xx.c ****       break;
+ 388              		.loc 1 604 7 is_stmt 1 view .LVU123
+ 604:platform/cmsis/device/system_stm32f4xx.c ****       break;
+ 389              		.loc 1 604 31 is_stmt 0 view .LVU124
+ 390 006e B3FBF2F3 		udiv	r3, r3, r2
+ 391              	.LVL17:
+ 604:platform/cmsis/device/system_stm32f4xx.c ****       break;
+ 392              		.loc 1 604 23 view .LVU125
+ 393 0072 074A     		ldr	r2, .L25+4
+ 394              	.LVL18:
+ 604:platform/cmsis/device/system_stm32f4xx.c ****       break;
+ 395              		.loc 1 604 23 view .LVU126
+ 396 0074 1360     		str	r3, [r2]
+ 605:platform/cmsis/device/system_stm32f4xx.c **** #if defined(STM32F412xG) || defined(STM32F413_423xx) || defined(STM32F446xx)      
+ 397              		.loc 1 605 7 is_stmt 1 view .LVU127
+ 398 0076 D3E7     		b	.L21
+ 399              	.LVL19:
+ 400              	.L22:
+ 586:platform/cmsis/device/system_stm32f4xx.c ****       }
+ 401              		.loc 1 586 9 view .LVU128
+ 586:platform/cmsis/device/system_stm32f4xx.c ****       }
+ 402              		.loc 1 586 29 is_stmt 0 view .LVU129
+ARM GAS  /tmp/cclhuhzK.s 			page 25
+
+
+ 403 0078 064B     		ldr	r3, .L25+8
+ 404 007a B3FBF2F3 		udiv	r3, r3, r2
+ 586:platform/cmsis/device/system_stm32f4xx.c ****       }
+ 405              		.loc 1 586 44 view .LVU130
+ 406 007e 034A     		ldr	r2, .L25
+ 407              	.LVL20:
+ 586:platform/cmsis/device/system_stm32f4xx.c ****       }
+ 408              		.loc 1 586 44 view .LVU131
+ 409 0080 5268     		ldr	r2, [r2, #4]
+ 586:platform/cmsis/device/system_stm32f4xx.c ****       }
+ 410              		.loc 1 586 74 view .LVU132
+ 411 0082 C2F38812 		ubfx	r2, r2, #6, #9
+ 586:platform/cmsis/device/system_stm32f4xx.c ****       }
+ 412              		.loc 1 586 16 view .LVU133
+ 413 0086 02FB03F3 		mul	r3, r2, r3
+ 414              	.LVL21:
+ 586:platform/cmsis/device/system_stm32f4xx.c ****       }
+ 415              		.loc 1 586 16 view .LVU134
+ 416 008a EAE7     		b	.L23
+ 417              	.L26:
+ 418              		.align	2
+ 419              	.L25:
+ 420 008c 00380240 		.word	1073887232
+ 421 0090 00000000 		.word	.LANCHOR0
+ 422 0094 0024F400 		.word	16000000
+ 423 0098 00000000 		.word	.LANCHOR1
+ 424 009c 40787D01 		.word	25000000
+ 425              		.cfi_endproc
+ 426              	.LFE124:
+ 428              		.global	AHBPrescTable
+ 429              		.global	SystemCoreClock
+ 430              		.section	.data.AHBPrescTable,"aw"
+ 431              		.align	2
+ 432              		.set	.LANCHOR1,. + 0
+ 435              	AHBPrescTable:
+ 436 0000 00000000 		.ascii	"\000\000\000\000\000\000\000\000\001\002\003\004\006"
+ 436      00000000 
+ 436      01020304 
+ 436      06
+ 437 000d 070809   		.ascii	"\007\010\011"
+ 438              		.section	.data.SystemCoreClock,"aw"
+ 439              		.align	2
+ 440              		.set	.LANCHOR0,. + 0
+ 443              	SystemCoreClock:
+ 444 0000 007A030A 		.word	168000000
+ 445              		.text
+ 446              	.Letext0:
+ 447              		.file 2 "/home/lee/stm32f407_boot/tools/toolchain/gcc-arm-none-eabi/gcc-arm-none-eabi-10.3-2021.10
+ 448              		.file 3 "/home/lee/stm32f407_boot/tools/toolchain/gcc-arm-none-eabi/gcc-arm-none-eabi-10.3-2021.10
+ 449              		.file 4 "platform/cmsis/core/core_cm4.h"
+ 450              		.file 5 "platform/cmsis/device/stm32f4xx.h"
+ 451              		.file 6 "platform/cmsis/device/system_stm32f4xx.h"
+ARM GAS  /tmp/cclhuhzK.s 			page 26
+
+
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 system_stm32f4xx.c
+     /tmp/cclhuhzK.s:20     .text.SetSysClock:0000000000000000 $t
+     /tmp/cclhuhzK.s:25     .text.SetSysClock:0000000000000000 SetSysClock
+     /tmp/cclhuhzK.s:186    .text.SetSysClock:00000000000000b4 $d
+     /tmp/cclhuhzK.s:194    .text.SystemInit:0000000000000000 $t
+     /tmp/cclhuhzK.s:200    .text.SystemInit:0000000000000000 SystemInit
+     /tmp/cclhuhzK.s:257    .text.SystemInit:0000000000000044 $d
+     /tmp/cclhuhzK.s:264    .text.SystemCoreClockUpdate:0000000000000000 $t
+     /tmp/cclhuhzK.s:270    .text.SystemCoreClockUpdate:0000000000000000 SystemCoreClockUpdate
+     /tmp/cclhuhzK.s:420    .text.SystemCoreClockUpdate:000000000000008c $d
+     /tmp/cclhuhzK.s:435    .data.AHBPrescTable:0000000000000000 AHBPrescTable
+     /tmp/cclhuhzK.s:443    .data.SystemCoreClock:0000000000000000 SystemCoreClock
+     /tmp/cclhuhzK.s:431    .data.AHBPrescTable:0000000000000000 $d
+     /tmp/cclhuhzK.s:439    .data.SystemCoreClock:0000000000000000 $d
+
+NO UNDEFINED SYMBOLS
