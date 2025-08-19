@@ -1,4 +1,4 @@
-CONFIG_BOTLOADER := y
+CONFIG_BOOTLOADER := y
 
 # 禁用隐含规则
 MAKEFLAGS += -rR
@@ -7,18 +7,15 @@ MAKEFLAGS += -rR
 PROJECT_NAME := xcplus
 
 # 目标
-ifeq ($(CONFIG_BOTLOADER), y)
+ifeq ($(CONFIG_BOOTLOADER), y)
 TARGET ?= boot
 else
 TARGET ?= app
 endif
 
-# ?= 仅在未定义时使用
-# := 立即执行
-
 # 输出路径
 BUILD_BASE := output
-ifeq ($(CONFIG_BOTLOADER), y)
+ifeq ($(CONFIG_BOOTLOADER), y)
 BUILD := $(BUILD_BASE)/$(PROJECT_NAME)_boot
 else
 BUILD := $(BUILD_BASE)/$(PROJECT_NAME)
@@ -38,7 +35,7 @@ MKDIR := mkdir -p
 PYTHON := python3
 OS = $(shell uname -s)
 ifeq ($(V),)
-QUIET := @
+QUITE := @
 endif
 
 # 平台配置
@@ -47,32 +44,36 @@ MCU := -mthumb -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard
 LDSCRIPT := platform/stm32f407vetx_flash.ld
 
 # 库文件
-LIBS := -lc -lm -lnosys
+LIBS := -lm
 
 # 宏定义
 P_DEF :=
-P_DEF +=  STM32F40_41xxx \
-		  USE_STDPERIPH_DRIVER \
-		  HSE_VALUE=8000000 
+P_DEF += STM32F40_41xxx \
+		 USE_STDPERIPH_DRIVER \
+         HSE_VALUE=8000000
 ifeq ($(DEBUG), y)
-P_DEF += -DEBUG
+P_DEF += DEBUG
 endif
 
 s_inc-y = boot \
-	      component/crc \
-	      component/easylogger/inc \
-		  component/rngbuff \
+		  component/crc \
+		  component/easylogger/inc \
+		  component/ringbuffer \
 		  platform/cmsis/core \
 		  platform/cmsis/device \
 		  platform/driver/inc
 s_dir-y = boot \
-	      boot/override \
+		  boot/override \
 		  component/crc \
-		  component/driver/scr
+		  component/ringbuffer \
+		  platform/cmsis/device \
+		  platform/driver/src
+
 ifeq ($(DEBUG), y)
 s_dir-y += component/easylogger/src \
-          component/easylogger/port 
+           component/easylogger/port
 endif
+
 
 s_src-y = $(wildcard $(addsuffix /*.c, $(s_dir-y)))
 s_src-y += platform/cmsis/device/startup_stm32f40_41xxx.s

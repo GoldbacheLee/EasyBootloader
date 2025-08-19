@@ -1,6 +1,8 @@
 {
     "files.associations": {
         "*.h": "c",
-        "makefile1": "c"
+        "string_view": "c",
+        "rope": "c",
+        "regex": "c"
     }
 }
