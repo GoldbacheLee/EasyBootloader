@@ -1,117 +1,162 @@
-# ==============================================================================
-# Project Configuration
-# ==============================================================================
-TARGET = stm32f407_boot
-BUILD_DIR = build
-DEBUG = y
-OPT = -Og
+CONFIG_BOTLOADER := y
 
-# ==============================================================================
-# Source Files
-# ==============================================================================
-C_DIRS = \
-boot \
-platform/driver\
-platform/cmsis/device \
-platform/cmsis/core
+# 禁用隐含规则
+MAKEFLAGS += -rR
 
-C_SOURCES = $(foreach dir,$(C_DIRS),$(shell find $(dir) -name '*.c'))
-ASM_SOURCES = platform/cmsis/device/startup_stm32f40_41xxx.s
+# 项目名称
+PROJECT_NAME := xcplus
 
-# ==============================================================================
-# Toolchain Definition
-# ==============================================================================
-TOOLCHAIN_DIR = tools/toolchain/gcc-arm-none-eabi/gcc-arm-none-eabi-10.3-2021.10
-PREFIX        = $(TOOLCHAIN_DIR)/bin/arm-none-eabi-
-
-CC     = $(PREFIX)gcc
-AS     = $(PREFIX)gcc -x assembler-with-cpp
-CP     = $(PREFIX)objcopy
-SZ     = $(PREFIX)size
-HEX    = $(CP) -O ihex
-BIN    = $(CP) -O binary -S
-
-# ==============================================================================
-# Compiler & Linker Flags (CFLAGS & LDFLAGS)
-# ==============================================================================
-CPU = -mcpu=cortex-m4
-FPU = -mfpu=fpv4-sp-d16
-FLOAT-ABI = -mfloat-abi=hard
-MCU = $(CPU) -mthumb $(FPU) $(FLOAT-ABI)
-
-# C header include paths
-# CORRECTED: Replaced the incorrect path with the one you provided for core_cm4.h
-C_INCLUDES = \
--Iboot \
--Iplatform/driver/inc \
--Iplatform/cmsis/device \
--Iplatform/cmsis/core
-
-# C preprocessor defines
-C_DEFS = \
--DSTM32F407xx
-
-# --- Assembly flags ---
-ASFLAGS = $(MCU) -Wall -fdata-sections -ffunction-sections
-
-# --- C flags ---
-CFLAGS = $(MCU) $(C_DEFS) $(C_INCLUDES) $(OPT) -Wall -fdata-sections -ffunction-sections -std=gnu11
-
-ifeq ($(DEBUG), y)
-CFLAGS += -g -gdwarf-2
+# 目标
+ifeq ($(CONFIG_BOTLOADER), y)
+TARGET ?= boot
+else
+TARGET ?= app
 endif
 
-CFLAGS += -MMD -MP -MF"$(@:%.o=%.d)"
+# ?= 仅在未定义时使用
+# := 立即执行
 
-# --- Linker flags ---
-LDSCRIPT = platform/stm32f407vetx_flash.ld
-LIBS = -lc -lm -lnosys
-LIBDIR =
-LDFLAGS = $(MCU) -specs=nano.specs -T$(LDSCRIPT) $(LIBDIR) $(LIBS) -Wl,-Map=$(BUILD_DIR)/$(TARGET).map,--cref -Wl,--gc-sections
+# 输出路径
+BUILD_BASE := output
+ifeq ($(CONFIG_BOTLOADER), y)
+BUILD := $(BUILD_BASE)/$(PROJECT_NAME)_boot
+else
+BUILD := $(BUILD_BASE)/$(PROJECT_NAME)
+endif
 
-# ==============================================================================
-# Build Rules
-# ==============================================================================
-all: $(BUILD_DIR)/$(TARGET).elf $(BUILD_DIR)/$(TARGET).hex $(BUILD_DIR)/$(TARGET).bin
+# 生成配置
+# DEBUG ?= $(CONFIG_DEBUG)
+DEBUG ?=
+V ?=
 
-C_OBJECTS := $(patsubst %.c,$(BUILD_DIR)/%.o,$(C_SOURCES))
-ASM_OBJECTS := $(patsubst %.s,$(BUILD_DIR)/%.o,$(ASM_SOURCES))
-OBJECTS := $(C_OBJECTS) $(ASM_OBJECTS)
+# Toolchain
+CROSS_COMPILE ?= tools/toolchain/gcc-arm-none-eabi/gcc-arm-none-eabi-10.3-2021.10/arm-none-eabi/bin/arm-none-eabi-
+KCONF := scripts/kconfig/
+ECHO := echo
+CP := cp
+MKDIR := mkdir -p
+PYTHON := python3
+OS = $(shell uname -s)
+ifeq ($(V),)
+QUIET := @
+endif
 
-$(BUILD_DIR)/%.o: %.c Makefile | $(BUILD_DIR)
-	@echo "CC  $<"
-	@mkdir -p $(dir $@)
-	$(CC) -c $(CFLAGS) -Wa,-a,-ad,-alms=$(@:.o=.lst) $< -o $@
+# 平台配置
+PLATFORM := stm32f4
+MCU := -mthumb -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard
+LDSCRIPT := platform/stm32f407vetx_flash.ld
 
-$(BUILD_DIR)/%.o: %.s Makefile | $(BUILD_DIR)
-	@echo "AS  $<"
-	@mkdir -p $(dir $@)
-	$(AS) -c $(ASFLAGS) $< -o $@
+# 库文件
+LIBS := -lc -lm -lnosys
 
-$(BUILD_DIR)/$(TARGET).elf: $(OBJECTS) Makefile
-	@echo "LD  $@"
-	$(CC) $(OBJECTS) $(LDFLAGS) -o $@
-	@echo "SZ  $@"
-	$(SZ) $@
+# 宏定义
+P_DEF :=
+P_DEF += -STM32F40_41xx \
+		  USE_STDPERIPH_DRIVER \
+		  HSE_VALUE=8000000 
+ifeq ($(DEBUG), y)
+P_DEF += -DEBUG
+endif
 
-$(BUILD_DIR)/%.hex: $(BUILD_DIR)/%.elf
-	@echo "CP  $@"
-	$(HEX) $< $@
+s_inc-y = boot \
+	      component/crc \
+	      component/easylogger/inc \
+		  component/rngbuff \
+		  platform/cmsis/core \
+		  platform/cmsis/device \
+		  platform/driver/inc
+s_dir-y = boot \
+	      boot/override \
+		  component/crc \
+		  component/driver/scr
+ifeq ($(DEBUG), y)
+s_dir-y += component/easylogger/src \
+          component/easylogger/port 
+endif
 
-$(BUILD_DIR)/%.bin: $(BUILD_DIR)/%.elf
-	@echo "CP  $@"
-	$(BIN) $< $@
+s_src-y = $(wildcard $(addsuffix /*.c, $(s_dir-y)))
+s_src-y += platform/cmsis/device/startup_stm32f40_41xxx.s
 
-$(BUILD_DIR):
-	mkdir -p $@
+P_INC := $(sort $(s_inc-y))
+P_SRC := $(sort $(s_src-y))
+
+# 编译标记
+A_FLAGS  = $(MCU) -g
+C_FLAGS  = $(MCU) -g
+C_FLAGS += -std=gnu11
+C_FLAGS += -ffunction-sections -fdata-sections -fno-builtin -fno-strict-aliasing
+C_FLAGS += -Wall -Werror
+# C_FLAGS += -Wno-int-to-pointer-cast -Wno-pointer-to-int-cast
+ifeq ($(DEBUG), y)
+C_FLAGS += -Wno-comment -Wno-unused-value -Wno-unused-variable -Wno-unused-function
+endif
+C_FLAGS += -MMD -MP -MF"$(@:%.o=%.d)"
+
+ifeq ($(DEBUG), y)
+C_FLAGS += -O0
+else
+C_FLAGS += -Os
+endif
+
+# 链接标记
+L_FLAGS  = $(MCU)
+L_FLAGS += -T$(LDSCRIPT)
+L_FLAGS += -static -specs=nano.specs
+L_FLAGS += -Wl,-cref
+L_FLAGS += -Wl,-Map=$(BUILD)/$(TARGET).map
+L_FLAGS += -Wl,--gc-sections
+L_FLAGS += -Wl,--start-group
+L_FLAGS += $(LIBS)
+L_FLAGS += -Wl,--end-group
+
+# 依赖对象
+B_LIB := $(addprefix $(BUILD)/, $(P_LIB))
+B_INC := $(addprefix -I, $(P_INC))
+B_DEF := $(addprefix -D, $(P_DEF))
+B_OBJ := $(P_SRC)
+B_OBJ := $(B_OBJ:.c=.o)
+B_OBJ := $(B_OBJ:.s=.o)
+B_OBJ := $(addprefix $(BUILD)/, $(B_OBJ))
+B_DEP := $(B_OBJ:%.o=%.d)
+
+LINKERFILE := $(LDSCRIPT)
+
+FROCE_RELY := Makefile
+
+.PHONY: FORCE _all all test clean distclean $(BUILD)/$(TARGET)
+
+all: $(BUILD)/$(TARGET)
+
+-include $(B_DEP)
+
+$(BUILD)/%.o: %.s $(FROCE_RELY)
+	$(QUITE)$(ECHO) "  AS    $@"
+	$(QUITE)$(MKDIR) $(dir $@)
+	$(QUITE)$(CROSS_COMPILE)as -c $(A_FLAGS) $< -o$@
+
+$(BUILD)/%.o: %.c $(FROCE_RELY)
+	$(QUITE)$(ECHO) "  CC    $@"
+	$(QUITE)$(MKDIR) $(dir $@)
+	$(QUITE)$(CROSS_COMPILE)gcc -c $(C_FLAGS) $(B_DEF) $(B_INC) $< -o$@
+
+$(BUILD)/$(TARGET): $(LINKERFILE) $(B_OBJ) $(FROCE_RELY)
+	$(QUITE)$(MKDIR) $(BUILD)
+	$(QUITE)$(ECHO) "  LD    $@.elf"
+	$(QUITE)$(ECHO) "  OBJ   $@.hex"
+	$(QUITE)$(ECHO) "  OBJ   $@.bin"
+	$(QUITE)$(CROSS_COMPILE)gcc $(B_OBJ) $(L_FLAGS) -o$@.elf
+	$(QUITE)$(CROSS_COMPILE)objcopy --gap-fill 0x00 -O ihex $@.elf $@.hex
+	$(QUITE)$(CROSS_COMPILE)objcopy --gap-fill 0x00 -O binary -S $@.elf $@.bin
+	$(QUITE)$(CROSS_COMPILE)size $@.elf
+	$(QUITE)$(ECHO) "  BUILD FINISH"
 
 clean:
-	@echo "CLEAN"
-	-rm -fR $(BUILD_DIR)
+	$(QUITE)rm -rf $(BUILD)
+	$(QUITE)$(ECHO) "clean up"
+
+distclean:
+	$(QUITE)rm -rf $(BUILD_BASE)
+	$(QUITE)$(ECHO) "distclean up"
 
 test:
-	@echo "Found C sources:"
-	@echo $(C_SOURCES) | tr ' ' '\n'
-
-# Include all generated dependency files
--include $(wildcard $(BUILD_DIR)/**/*.d)
+	$(QUITE)$(ECHO) $(BUILD) $(BUILD_BASE)
