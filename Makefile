@@ -30,7 +30,7 @@ DEBUG ?=
 V ?=
 
 # Toolchain
-CROSS_COMPILE ?= tools/toolchain/gcc-arm-none-eabi/gcc-arm-none-eabi-10.3-2021.10/arm-none-eabi/bin/arm-none-eabi-
+CROSS_COMPILE ?= tools/toolchain/gcc-arm-none-eabi-10.3-2021.10/bin/arm-none-eabi-
 KCONF := scripts/kconfig/
 ECHO := echo
 CP := cp
