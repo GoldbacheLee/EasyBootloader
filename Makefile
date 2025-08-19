@@ -51,7 +51,7 @@ LIBS := -lc -lm -lnosys
 
 # 宏定义
 P_DEF :=
-P_DEF += -STM32F40_41xx \
+P_DEF +=  STM32F40_41xxx \
 		  USE_STDPERIPH_DRIVER \
 		  HSE_VALUE=8000000 
 ifeq ($(DEBUG), y)
