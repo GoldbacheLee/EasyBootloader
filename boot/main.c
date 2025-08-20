@@ -1,46 +1,42 @@
+#include "main.h"
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
-#include "main.h"
+#include "led.h"
+#include "uart.h"
+#include "button.h"
 
-// --- 段 (Section) 生成演示 ---
+#define LOG_TAG "main"
+#define LOG_LVL ELOG_LVL_INFO
+#include "elog.h"
 
-// 1. 生成 .rodata 段 (只读数据段)
-//    - 特点: const 常量，非零初始化。
-//    - 存放位置: 存储在 Flash 中，程序直接从 Flash 读取，不会拷贝到 RAM。
-//    - 作用: 解决了 objcopy 的问题。
-const int g_rodata_variable = 223;
-
-// 2. 生成 .data 段 (已初始化数据段) - 这就是你想要的！
-//    - 特点: 非 const 全局变量，非零初始化。
-//    - 存放位置: 初始值 55 存储在 Flash 中。程序启动时，这个值会被拷贝到 RAM 中。
-//                程序运行时可以修改 RAM 中的 g_data_variable。
-//    - 作用: 解决了 objcopy 的问题，并且是可修改的。
-int g_data_variable = 55;
-
-// 3. 生成 .bss 段 (未初始化数据段)
-//    - 特点: 未初始化或初始化为 0 的全局变量。
-//    - 存放位置: 不在 Flash 中占用空间，仅在 RAM 中预留位置，并在启动时被清零。
-//    - 作用: 这是导致之前 objcopy 问题的原因。
-int g_bss_variable; 
-// int g_another_bss_var = 0; // 这行效果和上面一样
+extern void bl_lowlevel_init(void);
 
 int main(void)
 {
-    // 局部变量 m 存放在栈(stack)上，栈位于RAM区
-    uint32_t m = 52; 
-    
-    // 你可以修改 .data 段的变量，因为它已经被拷贝到可读写的RAM中
-    g_data_variable = g_data_variable + 1; 
-    
-    // 你不能修改 .rodata 段的变量 (会导致编译错误)
-    // g_rodata_variable = 100; //取消这行注释会报错: "assignment of read-only variable"
 
-    // 读取 m 的值，与 g_data_variable 的新值相加 (为了让编译器不优化掉这些变量)
-    m += g_data_variable;
+    bl_lowlevel_init();
 
-    while (1)
-    {
-        ;
-    }
+#if DEBUG
+    elog_init();
+    elog_set_fmt(ELOG_LVL_ASSERT, ELOG_FMT_ALL);
+    elog_set_fmt(ELOG_LVL_ERROR, ELOG_FMT_LVL | ELOG_FMT_TAG | ELOG_FMT_TIME);
+    elog_set_fmt(ELOG_LVL_WARN, ELOG_FMT_LVL | ELOG_FMT_TAG | ELOG_FMT_TIME);
+    elog_set_fmt(ELOG_LVL_INFO, ELOG_FMT_LVL | ELOG_FMT_TAG | ELOG_FMT_TIME);
+    elog_set_fmt(ELOG_LVL_DEBUG, ELOG_FMT_LVL | ELOG_FMT_TAG | ELOG_FMT_TIME);
+    elog_set_fmt(ELOG_LVL_VERBOSE, ELOG_FMT_TAG);
+    elog_start();
+#endif
+
+    bl_delay_init();
+    bl_uart_init();
+    bl_button_init();
+    bl_led_init();
+
+    log_d("button: %d", bl_button_pressed());
+    
+
+    
+
+    return 0;
 }
