@@ -1,0 +1,169 @@
+Date : 2025-08-22 15:11:28
+Directory : /home/lee/stm32f407_boot
+Total : 124 files,  41177 codes, 38531 comments, 11437 blanks, all 91145 lines
+
+Languages
++----------+------------+------------+------------+------------+------------+
+| language | files      | code       | comment    | blank      | total      |
++----------+------------+------------+------------+------------+------------+
+| C        |        120 |     40,978 |     38,517 |     11,382 |     90,877 |
+| Makefile |          1 |        120 |         14 |         30 |        164 |
+| Markdown |          3 |         79 |          0 |         25 |        104 |
++----------+------------+------------+------------+------------+------------+
+
+Directories
++------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| path                                                                   | files      | code       | comment    | blank      | total      |
++------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| .                                                                      |        124 |     41,177 |     38,531 |     11,437 |     91,145 |
+| . (Files)                                                              |          2 |        129 |         14 |         31 |        174 |
+| Log                                                                    |          2 |         70 |          0 |         24 |         94 |
+| boot                                                                   |         20 |      1,241 |        255 |        304 |      1,800 |
+| boot (Files)                                                           |         16 |        538 |         26 |        155 |        719 |
+| boot/override                                                          |          4 |        703 |        229 |        149 |      1,081 |
+| component                                                              |          9 |      1,028 |        436 |        226 |      1,690 |
+| component/crc                                                          |          2 |         38 |          2 |         20 |         60 |
+| component/easylogger                                                   |          5 |        907 |        434 |        172 |      1,513 |
+| component/easylogger/inc                                               |          2 |        242 |        102 |         39 |        383 |
+| component/easylogger/port                                              |          1 |         70 |          0 |         19 |         89 |
+| component/easylogger/src                                               |          2 |        595 |        332 |        114 |      1,041 |
+| component/ringbuffer                                                   |          2 |         83 |          0 |         34 |        117 |
+| platform                                                               |         91 |     38,709 |     37,826 |     10,852 |     87,387 |
+| platform/cmsis                                                         |         11 |     15,167 |      6,837 |      3,627 |     25,631 |
+| platform/cmsis/core                                                    |          7 |      5,106 |      4,730 |      2,077 |     11,913 |
+| platform/cmsis/device                                                  |          4 |     10,061 |      2,107 |      1,550 |     13,718 |
+| platform/driver                                                        |         80 |     23,542 |     30,989 |      7,225 |     61,756 |
+| platform/driver/inc                                                    |         38 |      8,054 |      7,239 |      2,857 |     18,150 |
+| platform/driver/src                                                    |         42 |     15,488 |     23,750 |      4,368 |     43,606 |
++------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+
+Files
++------------------------------------------------------------------------+----------+------------+------------+------------+------------+
+| filename                                                               | language | code       | comment    | blank      | total      |
++------------------------------------------------------------------------+----------+------------+------------+------------+------------+
+| /home/lee/stm32f407_boot/Log/240821.md                                 | Markdown |         11 |          0 |          7 |         18 |
+| /home/lee/stm32f407_boot/Log/250820.md                                 | Markdown |         59 |          0 |         17 |         76 |
+| /home/lee/stm32f407_boot/Makefile                                      | Makefile |        120 |         14 |         30 |        164 |
+| /home/lee/stm32f407_boot/README.md                                     | Markdown |          9 |          0 |          1 |         10 |
+| /home/lee/stm32f407_boot/boot/arginfo.c                                | C        |         22 |          2 |          9 |         33 |
+| /home/lee/stm32f407_boot/boot/arginfo.h                                | C        |          6 |          0 |          7 |         13 |
+| /home/lee/stm32f407_boot/boot/bootloader.c                             | C        |        166 |         10 |         33 |        209 |
+| /home/lee/stm32f407_boot/boot/button.c                                 | C        |         16 |          1 |          4 |         21 |
+| /home/lee/stm32f407_boot/boot/button.h                                 | C        |          6 |          0 |          7 |         13 |
+| /home/lee/stm32f407_boot/boot/flash_layout.h                           | C        |          9 |          0 |          7 |         16 |
+| /home/lee/stm32f407_boot/boot/led.c                                    | C        |         35 |          1 |         11 |         47 |
+| /home/lee/stm32f407_boot/boot/led.h                                    | C        |          9 |          0 |          7 |         16 |
+| /home/lee/stm32f407_boot/boot/lowlevel.c                               | C        |         10 |          0 |          2 |         12 |
+| /home/lee/stm32f407_boot/boot/main.c                                   | C        |         71 |         10 |         15 |         96 |
+| /home/lee/stm32f407_boot/boot/main.h                                   | C        |         28 |          0 |         12 |         40 |
+| /home/lee/stm32f407_boot/boot/norflash.c                               | C        |         58 |          1 |          9 |         68 |
+| /home/lee/stm32f407_boot/boot/norflash.h                               | C        |          8 |          0 |          7 |         15 |
+| /home/lee/stm32f407_boot/boot/override/_printf.c                       | C        |         33 |          0 |          7 |         40 |
+| /home/lee/stm32f407_boot/boot/override/_printf_.c                      | C        |        648 |        150 |        117 |        915 |
+| /home/lee/stm32f407_boot/boot/override/_printf_.h                      | C        |         18 |         79 |         21 |        118 |
+| /home/lee/stm32f407_boot/boot/override/_putchar.c                      | C        |          4 |          0 |          4 |          8 |
+| /home/lee/stm32f407_boot/boot/uart.c                                   | C        |         63 |          1 |         12 |         76 |
+| /home/lee/stm32f407_boot/boot/uart.h                                   | C        |          9 |          0 |          5 |         14 |
+| /home/lee/stm32f407_boot/boot/utils.c                                  | C        |         22 |          0 |          8 |         30 |
+| /home/lee/stm32f407_boot/component/crc/crc32.c                         | C        |         32 |          2 |         13 |         47 |
+| /home/lee/stm32f407_boot/component/crc/crc32.h                         | C        |          6 |          0 |          7 |         13 |
+| /home/lee/stm32f407_boot/component/easylogger/inc/elog.h               | C        |        214 |         47 |         36 |        297 |
+| /home/lee/stm32f407_boot/component/easylogger/inc/elog_cfg.h           | C        |         28 |         55 |          3 |         86 |
+| /home/lee/stm32f407_boot/component/easylogger/port/elog_port.c         | C        |         70 |          0 |         19 |         89 |
+| /home/lee/stm32f407_boot/component/easylogger/src/elog.c               | C        |        559 |        276 |        102 |        937 |
+| /home/lee/stm32f407_boot/component/easylogger/src/elog_utils.c         | C        |         36 |         56 |         12 |        104 |
+| /home/lee/stm32f407_boot/component/ringbuffer/ringbuffer8.c            | C        |         69 |          0 |         25 |         94 |
+| /home/lee/stm32f407_boot/component/ringbuffer/ringbuffer8.h            | C        |         14 |          0 |          9 |         23 |
+| /home/lee/stm32f407_boot/platform/cmsis/core/arm_common_tables.h       | C        |         82 |         44 |         11 |        137 |
+| /home/lee/stm32f407_boot/platform/cmsis/core/arm_const_structs.h       | C        |         32 |         41 |          7 |         80 |
+| /home/lee/stm32f407_boot/platform/cmsis/core/arm_math.h                | C        |      2,935 |      3,403 |      1,219 |      7,557 |
+| /home/lee/stm32f407_boot/platform/cmsis/core/core_cm4.h                | C        |      1,033 |        416 |        410 |      1,859 |
+| /home/lee/stm32f407_boot/platform/cmsis/core/core_cmFunc.h             | C        |        241 |        303 |        121 |        665 |
+| /home/lee/stm32f407_boot/platform/cmsis/core/core_cmInstr.h            | C        |        288 |        473 |        156 |        917 |
+| /home/lee/stm32f407_boot/platform/cmsis/core/core_cmSimd.h             | C        |        495 |         50 |        153 |        698 |
+| /home/lee/stm32f407_boot/platform/cmsis/device/stm32f4xx.h             | C        |      9,451 |      1,255 |      1,361 |     12,067 |
+| /home/lee/stm32f407_boot/platform/cmsis/device/stm32f4xx_conf.h        | C        |        102 |         40 |         23 |        165 |
+| /home/lee/stm32f407_boot/platform/cmsis/device/system_stm32f4xx.c      | C        |        496 |        748 |        144 |      1,388 |
+| /home/lee/stm32f407_boot/platform/cmsis/device/system_stm32f4xx.h      | C        |         12 |         64 |         22 |         98 |
+| /home/lee/stm32f407_boot/platform/driver/inc/misc.h                    | C        |         49 |         87 |         35 |        171 |
+| /home/lee/stm32f407_boot/platform/driver/inc/stm32f4xx_adc.h           | C        |        344 |        222 |         83 |        649 |
+| /home/lee/stm32f407_boot/platform/driver/inc/stm32f4xx_can.h           | C        |        264 |        273 |        113 |        650 |
+| /home/lee/stm32f407_boot/platform/driver/inc/stm32f4xx_cec.h           | C        |        133 |        118 |         43 |        294 |
+| /home/lee/stm32f407_boot/platform/driver/inc/stm32f4xx_crc.h           | C        |         16 |         44 |         16 |         76 |
+| /home/lee/stm32f407_boot/platform/driver/inc/stm32f4xx_cryp.h          | C        |        186 |        137 |         54 |        377 |
+| /home/lee/stm32f407_boot/platform/driver/inc/stm32f4xx_dac.h           | C        |        129 |        118 |         50 |        297 |
+| /home/lee/stm32f407_boot/platform/driver/inc/stm32f4xx_dbgmcu.h        | C        |         43 |         43 |         16 |        102 |
+| /home/lee/stm32f407_boot/platform/driver/inc/stm32f4xx_dcmi.h          | C        |        121 |        135 |         49 |        305 |
+| /home/lee/stm32f407_boot/platform/driver/inc/stm32f4xx_dfsdm.h         | C        |        465 |        249 |        108 |        822 |
+| /home/lee/stm32f407_boot/platform/driver/inc/stm32f4xx_dma.h           | C        |        304 |        198 |        100 |        602 |
+| /home/lee/stm32f407_boot/platform/driver/inc/stm32f4xx_dma2d.h         | C        |        167 |        178 |        123 |        468 |
+| /home/lee/stm32f407_boot/platform/driver/inc/stm32f4xx_dsi.h           | C        |        425 |        427 |        152 |      1,004 |
+| /home/lee/stm32f407_boot/platform/driver/inc/stm32f4xx_exti.h          | C        |         77 |         66 |         35 |        178 |
+| /home/lee/stm32f407_boot/platform/driver/inc/stm32f4xx_flash.h         | C        |        272 |        167 |         51 |        490 |
+| /home/lee/stm32f407_boot/platform/driver/inc/stm32f4xx_flash_ramfunc.h | C        |         19 |         59 |         18 |         96 |
+| /home/lee/stm32f407_boot/platform/driver/inc/stm32f4xx_fmc.h           | C        |        361 |        546 |        229 |      1,136 |
+| /home/lee/stm32f407_boot/platform/driver/inc/stm32f4xx_fmpi2c.h        | C        |        199 |        170 |         98 |        467 |
+| /home/lee/stm32f407_boot/platform/driver/inc/stm32f4xx_fsmc.h          | C        |        210 |        347 |        111 |        668 |
+| /home/lee/stm32f407_boot/platform/driver/inc/stm32f4xx_gpio.h          | C        |        369 |        147 |         69 |        585 |
+| /home/lee/stm32f407_boot/platform/driver/inc/stm32f4xx_hash.h          | C        |         95 |        111 |         44 |        250 |
+| /home/lee/stm32f407_boot/platform/driver/inc/stm32f4xx_i2c.h           | C        |        208 |        403 |         91 |        702 |
+| /home/lee/stm32f407_boot/platform/driver/inc/stm32f4xx_iwdg.h          | C        |         38 |         65 |         21 |        124 |
+| /home/lee/stm32f407_boot/platform/driver/inc/stm32f4xx_lptim.h         | C        |        182 |        157 |         40 |        379 |
+| /home/lee/stm32f407_boot/platform/driver/inc/stm32f4xx_ltdc.h          | C        |        191 |        204 |        101 |        496 |
+| /home/lee/stm32f407_boot/platform/driver/inc/stm32f4xx_pwr.h           | C        |         99 |         96 |         43 |        238 |
+| /home/lee/stm32f407_boot/platform/driver/inc/stm32f4xx_qspi.h          | C        |        193 |        227 |         66 |        486 |
+| /home/lee/stm32f407_boot/platform/driver/inc/stm32f4xx_rcc.h           | C        |        642 |        300 |        117 |      1,059 |
+| /home/lee/stm32f407_boot/platform/driver/inc/stm32f4xx_rng.h           | C        |         32 |         60 |         22 |        114 |
+| /home/lee/stm32f407_boot/platform/driver/inc/stm32f4xx_rtc.h           | C        |        392 |        364 |        125 |        881 |
+| /home/lee/stm32f407_boot/platform/driver/inc/stm32f4xx_sai.h           | C        |        260 |        269 |        113 |        642 |
+| /home/lee/stm32f407_boot/platform/driver/inc/stm32f4xx_sdio.h          | C        |        256 |        187 |         86 |        529 |
+| /home/lee/stm32f407_boot/platform/driver/inc/stm32f4xx_spdifrx.h       | C        |        108 |        112 |         35 |        255 |
+| /home/lee/stm32f407_boot/platform/driver/inc/stm32f4xx_spi.h           | C        |        238 |        206 |         98 |        542 |
+| /home/lee/stm32f407_boot/platform/driver/inc/stm32f4xx_syscfg.h        | C        |        173 |        128 |         42 |        343 |
+| /home/lee/stm32f407_boot/platform/driver/inc/stm32f4xx_tim.h           | C        |        593 |        390 |        160 |      1,143 |
+| /home/lee/stm32f407_boot/platform/driver/inc/stm32f4xx_usart.h         | C        |        173 |        175 |         78 |        426 |
+| /home/lee/stm32f407_boot/platform/driver/inc/stm32f4xx_wwdg.h          | C        |         28 |         54 |         22 |        104 |
+| /home/lee/stm32f407_boot/platform/driver/src/misc.c                    | C        |         62 |        155 |         25 |        242 |
+| /home/lee/stm32f407_boot/platform/driver/src/stm32f4xx_adc.c           | C        |        518 |      1,056 |        164 |      1,738 |
+| /home/lee/stm32f407_boot/platform/driver/src/stm32f4xx_can.c           | C        |        829 |        868 |        152 |      1,849 |
+| /home/lee/stm32f407_boot/platform/driver/src/stm32f4xx_cec.c           | C        |        144 |        408 |         49 |        601 |
+| /home/lee/stm32f407_boot/platform/driver/src/stm32f4xx_crc.c           | C        |         31 |         77 |         18 |        126 |
+| /home/lee/stm32f407_boot/platform/driver/src/stm32f4xx_cryp.c          | C        |        280 |        571 |         76 |        927 |
+| /home/lee/stm32f407_boot/platform/driver/src/stm32f4xx_cryp_aes.c      | C        |      1,104 |        400 |        196 |      1,700 |
+| /home/lee/stm32f407_boot/platform/driver/src/stm32f4xx_cryp_des.c      | C        |        136 |        129 |         40 |        305 |
+| /home/lee/stm32f407_boot/platform/driver/src/stm32f4xx_cryp_tdes.c     | C        |        152 |        130 |         39 |        321 |
+| /home/lee/stm32f407_boot/platform/driver/src/stm32f4xx_dac.c           | C        |        203 |        440 |         64 |        707 |
+| /home/lee/stm32f407_boot/platform/driver/src/stm32f4xx_dbgmcu.c        | C        |         49 |        106 |         18 |        173 |
+| /home/lee/stm32f407_boot/platform/driver/src/stm32f4xx_dcmi.c          | C        |        178 |        303 |         50 |        531 |
+| /home/lee/stm32f407_boot/platform/driver/src/stm32f4xx_dfsdm.c         | C        |        823 |      1,132 |        247 |      2,202 |
+| /home/lee/stm32f407_boot/platform/driver/src/stm32f4xx_dma.c           | C        |        424 |        759 |        111 |      1,294 |
+| /home/lee/stm32f407_boot/platform/driver/src/stm32f4xx_dma2d.c         | C        |        303 |        361 |        113 |        777 |
+| /home/lee/stm32f407_boot/platform/driver/src/stm32f4xx_dsi.c           | C        |        815 |        740 |        208 |      1,763 |
+| /home/lee/stm32f407_boot/platform/driver/src/stm32f4xx_exti.c          | C        |         94 |        172 |         39 |        305 |
+| /home/lee/stm32f407_boot/platform/driver/src/stm32f4xx_flash.c         | C        |        531 |        930 |        151 |      1,612 |
+| /home/lee/stm32f407_boot/platform/driver/src/stm32f4xx_flash_ramfunc.c | C        |         23 |        114 |         14 |        151 |
+| /home/lee/stm32f407_boot/platform/driver/src/stm32f4xx_fmpi2c.c        | C        |        511 |        879 |        157 |      1,547 |
+| /home/lee/stm32f407_boot/platform/driver/src/stm32f4xx_fsmc.c          | C        |        540 |        453 |        100 |      1,093 |
+| /home/lee/stm32f407_boot/platform/driver/src/stm32f4xx_gpio.c          | C        |        201 |        348 |         55 |        604 |
+| /home/lee/stm32f407_boot/platform/driver/src/stm32f4xx_hash.c          | C        |        173 |        489 |         57 |        719 |
+| /home/lee/stm32f407_boot/platform/driver/src/stm32f4xx_hash_md5.c      | C        |        147 |        125 |         41 |        313 |
+| /home/lee/stm32f407_boot/platform/driver/src/stm32f4xx_hash_sha1.c     | C        |        151 |        125 |         40 |        316 |
+| /home/lee/stm32f407_boot/platform/driver/src/stm32f4xx_i2c.c           | C        |        500 |        860 |        104 |      1,464 |
+| /home/lee/stm32f407_boot/platform/driver/src/stm32f4xx_iwdg.c          | C        |         40 |        195 |         24 |        259 |
+| /home/lee/stm32f407_boot/platform/driver/src/stm32f4xx_lptim.c         | C        |        262 |        576 |        106 |        944 |
+| /home/lee/stm32f407_boot/platform/driver/src/stm32f4xx_ltdc.c          | C        |        480 |        462 |        161 |      1,103 |
+| /home/lee/stm32f407_boot/platform/driver/src/stm32f4xx_pwr.c           | C        |        274 |        671 |        101 |      1,046 |
+| /home/lee/stm32f407_boot/platform/driver/src/stm32f4xx_qspi.c          | C        |        343 |        476 |         85 |        904 |
+| /home/lee/stm32f407_boot/platform/driver/src/stm32f4xx_rcc.c           | C        |        976 |      1,931 |        278 |      3,185 |
+| /home/lee/stm32f407_boot/platform/driver/src/stm32f4xx_rng.c           | C        |         81 |        286 |         32 |        399 |
+| /home/lee/stm32f407_boot/platform/driver/src/stm32f4xx_rtc.c           | C        |      1,054 |      1,409 |        295 |      2,758 |
+| /home/lee/stm32f407_boot/platform/driver/src/stm32f4xx_sai.c           | C        |        340 |        737 |         83 |      1,160 |
+| /home/lee/stm32f407_boot/platform/driver/src/stm32f4xx_sdio.c          | C        |        244 |        655 |        105 |      1,004 |
+| /home/lee/stm32f407_boot/platform/driver/src/stm32f4xx_spdifrx.c       | C        |        167 |        275 |         45 |        487 |
+| /home/lee/stm32f407_boot/platform/driver/src/stm32f4xx_spi.c           | C        |        421 |        796 |        109 |      1,326 |
+| /home/lee/stm32f407_boot/platform/driver/src/stm32f4xx_syscfg.c        | C        |        204 |        243 |         67 |        514 |
+| /home/lee/stm32f407_boot/platform/driver/src/stm32f4xx_tim.c           | C        |      1,171 |      1,785 |        402 |      3,358 |
+| /home/lee/stm32f407_boot/platform/driver/src/stm32f4xx_usart.c         | C        |        448 |        914 |        117 |      1,479 |
+| /home/lee/stm32f407_boot/platform/driver/src/stm32f4xx_wwdg.c          | C        |         61 |        209 |         30 |        300 |
+| Total                                                                  |          |     41,177 |     38,531 |     11,437 |     91,145 |
++------------------------------------------------------------------------+----------+------------+------------+------------+------------+

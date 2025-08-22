@@ -3,7 +3,9 @@
 #include "stm32f4xx.h"
 #include "uart.h"
 
+
 static bl_uart_recv_cb_t bl_uart_recv_cb;
+
 
 void bl_uart_init(void)
 {
@@ -35,7 +37,6 @@ void bl_uart_init(void)
     NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
     NVIC_Init(&NVIC_InitStructure);
 
-    //Enable Recive Interrupt
     USART_ITConfig(USART2, USART_IT_RXNE, ENABLE);
     USART_Cmd(USART2, ENABLE);
 }
@@ -45,6 +46,7 @@ void bl_uart_deinit(void)
     USART_Cmd(USART2, DISABLE);
     USART_DeInit(USART2);
 }
+
 
 void bl_uart_write(uint8_t *data, uint32_t len)
 {

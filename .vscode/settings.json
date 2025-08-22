@@ -3,6 +3,14 @@
         "*.h": "c",
         "string_view": "c",
         "rope": "c",
-        "regex": "c"
+        "regex": "c",
+        "array": "c",
+        "bitset": "c",
+        "slist": "c",
+        "initializer_list": "c",
+        "ranges": "c",
+        "span": "c",
+        "utility": "c",
+        "valarray": "c"
     }
 }
