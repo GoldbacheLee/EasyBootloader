@@ -2,7 +2,7 @@
 
 void bl_lowlevel_init(void)
 {
-    SystemCoreclockUpdate();
+    SystemCoreClockUpdate();
     RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA | RCC_AHB1Periph_GPIOB | RCC_AHB1Periph_GPIOC |
                                RCC_AHB1Periph_GPIOD | RCC_AHB1Periph_GPIOE,
                            ENABLE);

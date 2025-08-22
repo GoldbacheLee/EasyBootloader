@@ -23,7 +23,7 @@ endif
 
 # 生成配置
 # DEBUG ?= $(CONFIG_DEBUG)
-DEBUG ?=
+DEBUG ?= y
 V ?=
 
 # Toolchain
